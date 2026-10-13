@@ -129,7 +129,7 @@ class TripDetectorFlushTest {
         d.flush()
         assertEquals(1, rides.size)
         assertEquals(18_000.0, distanceM(rides[0].start, rides[0].end), 400.0)
-        assertEquals(t0.plusSeconds(3 * 10 + 60 * 10), rides[0].end.time)
+        assertEquals(t0.plusSeconds(3 * 10 + 59 * 10), rides[0].end.time) // the newest fix still waits for confirmation
         assertTrue(!d.moving)
     }
 
