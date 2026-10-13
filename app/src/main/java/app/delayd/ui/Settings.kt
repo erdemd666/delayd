@@ -17,6 +17,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import app.delayd.Pipeline
@@ -84,7 +87,8 @@ fun SettingsContent(
                                 verticalAlignment = Alignment.CenterVertically) {
                                 RadioButton(lang == tag, null)
                                 Spacer(Modifier.width(Space.m))
-                                Text(label, style = MaterialTheme.typography.titleMedium)
+                                // TalkBack pronounces "Deutsch" / "English" with the app's voice unless the span says which language it is
+                                Text(if (tag == null) AnnotatedString(label) else AnnotatedString(label, SpanStyle(localeList = LocaleList(tag))), style = MaterialTheme.typography.titleMedium)
                             }
                         }
                     }

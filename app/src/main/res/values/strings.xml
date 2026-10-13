@@ -82,7 +82,7 @@
     <string name="rule_exceptions">Verspätungen durch außergewöhnliche Umstände, etwa schweres Unwetter, können ausgeschlossen sein. Die Bahn entscheidet über jeden Antrag.</string>
 
     <!-- Claim -->
-    <string name="claim_title">Fahrgastrechte-Antrag</string>
+    <string name="claim_title">Antrag</string>
     <string name="claim_month_title">Antrag für %1$s</string>
     <string name="claim_step_facts">Angaben prüfen</string>
     <string name="claim_step_fare">Dein Fahrpreis</string>

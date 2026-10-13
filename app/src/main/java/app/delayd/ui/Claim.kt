@@ -10,9 +10,12 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.KeyboardType
@@ -97,7 +100,7 @@ fun ClaimContent(trip: Trip?, onBack: () -> Unit, suggestedFareCt: Int? = null, 
         item {
             Panel {
                 OutlinedTextField(fare, { fare = it }, Modifier.fillMaxWidth(), label = { Text(stringResource(R.string.fare_label)) }, singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    isError = fare.isNotBlank() && owed == null, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     supportingText = {
                         Text(when {
                             fare.isBlank() -> stringResource(R.string.fare_hint)
@@ -178,7 +181,7 @@ private fun ClaimSend(text: String?, canSubmit: Boolean, submitLabel: Int, onSub
             FilledTonalButton({ clipboard.setText(AnnotatedString(text!!)); Toast.makeText(context, toast, Toast.LENGTH_LONG).show(); uri.openUri(DB_CLAIM_URL) },
                 Modifier.heightIn(min = 48.dp), enabled = text != null) { Text(stringResource(R.string.copy_open_db)) }
             OutlinedButton({ clipboard.setText(AnnotatedString(text!!)); copied = true }, Modifier.heightIn(min = 48.dp), enabled = text != null) {
-                Text(stringResource(if (copied) R.string.copied else R.string.copy_text))
+                Text(stringResource(if (copied) R.string.copied else R.string.copy_text), Modifier.semantics { liveRegion = LiveRegionMode.Polite }) // announce "Kopiert"
             }
         }
         Text(stringResource(R.string.claim_login_note), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -192,9 +195,13 @@ private fun StepTitle(n: Int, title: String) =
 
 @Composable
 private fun Fact(label: String, value: String) {
-    Row(Modifier.fillMaxWidth().semantics(mergeDescendants = true) {}, horizontalArrangement = Arrangement.spacedBy(Space.m)) {
-        Text(label, Modifier.weight(0.4f), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        Text(value, Modifier.weight(0.6f), style = MaterialTheme.typography.bodyLarge)
+    // Label and value side by side only while the labels fit; at large font scale "Planmäßige Ankunft" would break mid-word.
+    val stacked = LocalDensity.current.fontScale > 1.3f
+    val labelText = @Composable { m: Modifier -> Text(label, m, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+    val valueText = @Composable { m: Modifier -> Text(value, m, style = MaterialTheme.typography.bodyLarge) }
+    if (stacked) Column(Modifier.fillMaxWidth().semantics(mergeDescendants = true) {}) { labelText(Modifier); valueText(Modifier) }
+    else Row(Modifier.fillMaxWidth().semantics(mergeDescendants = true) {}, horizontalArrangement = Arrangement.spacedBy(Space.m)) {
+        labelText(Modifier.weight(0.4f)); valueText(Modifier.weight(0.6f))
     }
 }
 
