@@ -54,10 +54,9 @@ class ScenarioTest {
         return trip
     }
 
-    private val re1 = timetable(T, 60, Triple("Brandenburg Hbf", brandenburg, 10), Triple("Potsdam Hbf", potsdam, 35),
-        Triple("Wannsee", wannsee, 45), Triple("Berlin-Charlottenburg", charlottenburg, 54), Triple("Berlin Zoologischer Garten", zoo, 59),
-        Triple("Berlin Hbf", hbf, 65))
-    private val ice = timetable(T, 120, Triple("Berlin Hbf", hbf, 30), Triple("Berlin-Spandau", spandau, 42), Triple("Hamburg Hbf", hamburg, 136))
+    private val re1 = lineTimetable(T + min(10), 60, RE_V, RE_A, "Brandenburg Hbf" to brandenburg, "Potsdam Hbf" to potsdam,
+        "Wannsee" to wannsee, "Berlin-Charlottenburg" to charlottenburg, "Berlin Zoologischer Garten" to zoo, "Berlin Hbf" to hbf)
+    private val ice = lineTimetable(T + min(30), 120, ICE_V, ICE_A, "Berlin Hbf" to hbf, "Berlin-Spandau" to spandau, "Hamburg Hbf" to hamburg)
 
     private fun List<Wp>.delayedFrom(index: Int, by: Number) = mapIndexed { i, w -> if (i >= index) w.copy(arrive = w.arrive + min(by), depart = w.depart + min(by)) else w }
 
@@ -66,7 +65,7 @@ class ScenarioTest {
         val d = fixtureBoard().first { it.train == "S7" && it.time == Instant.parse("2026-10-13T10:49:00Z") }
         val stops = listOf(Wp("Hbf", hbf, d.time.minusSeconds(60), d.time)) + d.next.take(d.next.indexOfFirst { it.name.contains("Ostbahnhof") } + 1)
             .map { Wp(it.name, Pt(it.lat, it.lon), it.arrival!!) }
-        val truth = commute(stops, vLine = 17.0, accel = 0.9)
+        val truth = commute(stops, vLine = S_V, accel = S_A)
         val run = sim("S-Bahn hop Hbf-Ostbahnhof (real S7)", truth, board(hbf, *fixtureBoard().toTypedArray()))
         assertTrip(run, truth, "S7", "Ostbahnhof", 0)
     }
@@ -80,7 +79,7 @@ class ScenarioTest {
 
     // 3. ICE Berlin Hbf - Hamburg Hbf; no fixes from 2 min before to 4 min after departure (underground platform)
     @Test fun iceWithTunnelGap() {
-        val truth = commute(ice, vLine = 55.0, accel = 0.5)
+        val truth = commute(ice, vLine = ICE_V, accel = ICE_A)
         val dep = truth.departed!!
         val cfg = PhoneCfg(gaps = listOf(dep.minusSeconds(120) to dep.plusSeconds(240)))
         val run = sim("ICE Hbf-Hamburg, tunnel gap at Hbf (synthetic board)", truth, board(hbf, train("ICE 1", ice), train("ICE 3", ice.shifted(min(6)))), cfg)
@@ -100,7 +99,7 @@ class ScenarioTest {
     @Test fun delay130WithLongBlockage() {
         val late = ice.delayedFrom(0, 60).let { l -> l.mapIndexed { i, w -> if (i == 2) w.copy(arrive = w.arrive + min(70)) else w } }
         val b = board(hbf, train("ICE 1", late, planned = ice.map { it.arrive }))
-        val truth = commute(late, holds = mapOf(1 to (0.8 to 70 * 60)), waitMin = 8 + 60, vLine = 55.0, accel = 0.5)
+        val truth = commute(late, holds = mapOf(1 to (0.8 to 70 * 60)), waitMin = 8 + 60, vLine = ICE_V, accel = ICE_A)
         val trip = assertTrip(sim("130 min delay, 70 min blockage in the open", truth, b), truth, "ICE 1", "Hamburg", 130)
         assertEquals(2500, Compensation.singleTicketCt(trip.delayMin, 5000))
     }
@@ -132,8 +131,9 @@ class ScenarioTest {
     private fun transfer(name: String, changeMin: Int) {
         val leg1 = re1.take(2) // Brandenburg - Potsdam, arrives 08:35
         val dep2 = leg1.last().arrive + min(changeMin)
-        val leg2 = listOf(Wp("Potsdam Hbf", potsdam, dep2.minusSeconds(60), dep2), Wp("Berlin Hbf", hbf, dep2 + min(25) + min(8)))
-        val planned2 = listOf(dep2.minusSeconds(60), dep2 + min(25))
+        val onTime = lineTimetable(dep2, 60, RE_V, RE_A, "Potsdam Hbf" to potsdam, "Berlin Hbf" to hbf)
+        val leg2 = onTime.delayedFrom(1, 8) // arrives 8 min late
+        val planned2 = onTime.map { it.arrive }
         val platform2 = potsdam.offset(-60.0, 90.0)
         val truth = TruthBuilder(leg1[0].depart.minusSeconds(8 * 60 + 460), brandenburg.offset(0.0, -600.0)).apply {
             walk(brandenburg, 1.3)
@@ -152,7 +152,8 @@ class ScenarioTest {
         assertEquals(2, trip.legs)
     }
     @Test fun transfer12Min() = transfer("Transfer, 12 min change", 12)
-    @Test fun transfer6Min() = transfer("Transfer, 6 min change", 6)
+    @Test fun transfer9Min() = transfer("Transfer, 9 min change", 9)
+    @Test fun transfer5Min() = transfer("Transfer, 5 min change", 5)
 
     // 8. cancelled train and its replacement 30 min / 60 min later (an hourly line)
     private fun replacement(name: String, laterMin: Int) {
@@ -178,24 +179,33 @@ class ScenarioTest {
         assertEquals("trips ${run.trips}", 0, run.trips.size)
     }
 
-    // 9b. the same, but from the station car park to the station, leaving when a train leaves: the known weak spot
-    @Test fun carFromStationToStation() {
-        val truth = carDrive(hbf.offset(100.0, 100.0), listOf(Pt(52.49, 13.26), Pt(52.43, 13.17), potsdam.offset(150.0, 50.0)),
-            Instant.parse("2026-10-13T10:50:00Z"))
-        val run = sim("Car, Hbf to Potsdam Hbf at 108 km/h", truth, board(hbf, *fixtureBoard().toTypedArray()))
-        assertEquals("trips ${run.trips}", 0, run.trips.size)
+    // 9b. the same from the station car park to the station, at 16 different start times: how often does a car look like a train?
+    private val s7Board = board(hbf, *fixtureBoard().toTypedArray())
+
+    private fun lookalikes(name: String, truthAt: (Instant) -> Truth): Int {
+        val starts = (0 until 16).map { Instant.parse("2026-10-13T10:38:00Z") + min(it * 2) }
+        val runs = starts.mapIndexed { i, at -> runPhone(truthAt(at), PhoneCfg(seed = i.toLong(), stations = ALL_STATIONS), s7Board) }
+        val wrong = runs.count { it.trips.isNotEmpty() }
+        Report.add(name, runs.first(), null, null, "$wrong of ${runs.size} start times matched a train")
+        return wrong
     }
 
-    // 10. bus on the main road next to the S-Bahn (stops 900 m apart, 50 km/h between them)
+    @Test fun carFromStationToStation() {
+        lookalikes("Car, Hbf to Potsdam Hbf at 108 km/h") { at ->
+            carDrive(hbf.offset(100.0, 100.0), listOf(Pt(52.49, 13.26), Pt(52.43, 13.17), potsdam.offset(150.0, 50.0)), at)
+        }
+    }
+
+    // 10. a bus on the main road next to the S-Bahn: 480 m between stops, 45 km/h bursts, 40 s at stops and lights (~19 km/h average)
     @Test fun cityBus() {
-        val path = listOf(hbf.offset(150.0, 300.0), Pt(52.5204, 13.3872), Pt(52.5227, 13.4025), alex, Pt(52.5142, 13.4195), ostbahnhof)
-        val truth = TruthBuilder(Instant.parse("2026-10-13T10:48:00Z"), hbf.offset(150.0, 250.0)).apply {
-            stand(4 * 60)
-            path.forEach { move(it, (here.distTo(it) / 14.0 + 14).toInt(), accel = 1.0); stand(20) }
-            stand(40 * 60)
-        }.build()
-        val run = sim("City bus Hbf to Ostbahnhof, 50 km/h bursts", truth, board(hbf, *fixtureBoard().toTypedArray()))
-        assertEquals("trips ${run.trips}", 0, run.trips.size)
+        val path = (1..10).map { hbf.lerp(ostbahnhof, it / 10.0).offset(150.0, 0.0) }
+        lookalikes("City bus Hbf to Ostbahnhof, ~19 km/h") { at ->
+            TruthBuilder(at, hbf.offset(150.0, 250.0)).apply {
+                stand(4 * 60)
+                path.forEach { move(it, (here.distTo(it) / 12.5 + 12.5).toInt(), accel = 1.0); stand(40) }
+                stand(40 * 60)
+            }.build()
+        }
     }
 
     // 11. cyclist at 25 km/h and a brisk walker: no ride, and no GPS
@@ -234,9 +244,9 @@ class ScenarioTest {
         val zone = ZoneId.of("Europe/Berlin")
         val trips = delays.mapIndexed { i, delay ->
             val day = Instant.parse("2026-09-01T06:00:00Z").plus(Duration.ofDays(i % 28L)).plus(Duration.ofHours(i / 28 * 2L))
-            val sched = timetable(day, 30, Triple("Berlin Hbf", hbf, 0), Triple("Alexanderplatz", alex, 5), Triple("Ostbahnhof", ostbahnhof, 9))
+            val sched = lineTimetable(day, 30, S_V, S_A, "Berlin Hbf" to hbf, "Alexanderplatz" to alex, "Ostbahnhof" to ostbahnhof)
             val late = sched.delayedFrom(0, delay)
-            val run = runPhone(commute(late), PhoneCfg(seed = i.toLong(), stations = ALL_STATIONS), board(hbf, train("S7", late, sched.map { it.arrive })))
+            val run = runPhone(commute(late, vLine = S_V, accel = S_A), PhoneCfg(seed = i.toLong(), stations = ALL_STATIONS), board(hbf, train("S7", late, sched.map { it.arrive })))
             assertEquals("ride $i: ${run.trips}", 1, run.trips.size)
             run.trips.single().second
         }

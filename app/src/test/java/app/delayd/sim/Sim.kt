@@ -46,6 +46,9 @@ class Truth(val start: Instant, private val lat: DoubleArray, private val lon: D
     fun instant(s: Int): Instant = start.plusSeconds(s.toLong())
 }
 
+/** Time to cover [d] meters from standstill to standstill: accelerate to line speed [v], cruise, brake. */
+fun physSeconds(d: Double, v: Double, a: Double) = if (d > v * v / a) d / v + v / a else 2 * sqrt(d / a)
+
 class TruthBuilder(val start: Instant, from: Pt) {
     private val lat = ArrayList<Double>()
     private val lon = ArrayList<Double>()
@@ -92,9 +95,7 @@ class TruthBuilder(val start: Instant, from: Pt) {
             val total = Duration.between(a.depart, b.arrive).seconds.toInt()
             val hold = holds[i]?.second ?: 0
             // A train runs at line speed and waits at the station; the timetable's slack is standing, not crawling.
-            val d = a.pt.distTo(b.pt)
-            val phys = if (d > vLine * vLine / accel) d / vLine + vLine / accel else 2 * sqrt(d / accel)
-            val slack = max(0, total - hold - phys.toInt())
+            val slack = max(0, total - hold - physSeconds(a.pt.distTo(b.pt), vLine, accel).toInt())
             stand(slack)
             if (departedAt == null) departedAt = now
             val run = total - hold - slack

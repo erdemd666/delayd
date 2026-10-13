@@ -21,6 +21,13 @@ object Geo {
     val hamburg = Pt(53.5526, 10.0066)
 }
 
+const val RE_V = 35.0
+const val RE_A = 0.7
+const val ICE_V = 55.0
+const val ICE_A = 0.5
+const val S_V = 17.0
+const val S_A = 0.9
+
 val T: Instant = Instant.parse("2026-10-13T08:00:00Z")
 fun min(m: Number): Duration = Duration.ofSeconds((m.toDouble() * 60).toLong())
 
@@ -33,10 +40,13 @@ fun train(name: String, stops: List<Wp>, planned: List<Instant> = stops.map { it
 /** Same train [offset] later or earlier, on time: a decoy. */
 fun List<Wp>.shifted(offset: Duration) = map { it.copy(arrive = it.arrive + offset, depart = it.depart + offset) }
 
-/** Timetable from (name, place, minutes after [t0] of arrival); dwell [dwellSec] at every stop. */
-fun timetable(t0: Instant, dwellSec: Long, vararg s: Triple<String, Pt, Number>) = s.map {
-    val at = t0 + min(it.third)
-    Wp(it.first, it.second, at, at.plusSeconds(dwellSec))
+/** A physically consistent timetable: stop to stop at line speed [v] (acceleration [a]), [dwellSec] standing at every stop. */
+fun lineTimetable(departs: Instant, dwellSec: Long, v: Double, a: Double, vararg s: Pair<String, Pt>): List<Wp> {
+    var t = departs
+    return s.mapIndexed { i, (name, pt) ->
+        if (i > 0) t = t.plusSeconds(physSeconds(s[i - 1].second.distTo(pt), v, a).toLong())
+        Wp(name, pt, t, if (i == 0) t else t.plusSeconds(dwellSec)).also { t = it.depart }
+    }
 }
 
 /**
@@ -44,7 +54,7 @@ fun timetable(t0: Instant, dwellSec: Long, vararg s: Triple<String, Pt, Number>)
  * and standing still. [holds] are signal stops (see [TruthBuilder.ride]).
  */
 fun commute(stops: List<Wp>, holds: Map<Int, Pair<Double, Int>> = emptyMap(), approachM: Double = 600.0, waitMin: Int = 8,
-            vLine: Double = 30.0, accel: Double = 0.7): Truth {
+            vLine: Double = RE_V, accel: Double = RE_A): Truth {
     val platform = stops[0].pt
     val begin = stops[0].depart.minusSeconds(waitMin * 60L + (approachM / 1.3).toLong())
     return TruthBuilder(begin, platform.offset(0.0, -approachM)).apply {

@@ -10,6 +10,8 @@ import java.net.URLEncoder
 import java.time.DateTimeException
 import java.time.Duration
 import java.time.Instant
+import kotlin.math.cos
+import kotlin.math.hypot
 
 enum class ClaimStatus { OPEN, CLAIMED, PAID, DISMISSED }
 
@@ -70,10 +72,13 @@ object Transitous {
     private const val RAIL = "HIGHSPEED_RAIL,LONG_DISTANCE,NIGHT_RAIL,REGIONAL_RAIL,SUBURBAN"
     private const val USER_AGENT = "Delayd/${BuildConfig.VERSION_NAME} (github.com/erdem61/delayd)"
     private const val STOP_RADIUS_M = 800.0
+    private const val M_PER_DEG = 111_195.0
+    private const val OFF_ROUTE_M = 2_500.0
+    private val SLACK: Duration = Duration.ofSeconds(90) // stop times are rounded to the minute
     private val EARLY: Duration = Duration.ofMinutes(10)
     private val LATE: Duration = Duration.ofMinutes(15)
-    // a cancelled train can be planned well before the replacement we actually took
-    private val CANCELLED_LOOKBACK: Duration = Duration.ofMinutes(30)
+    // a cancelled train can be planned well before the replacement we actually took: an hourly line's is an hour later
+    private val CANCELLED_LOOKBACK: Duration = Duration.ofMinutes(75)
 
     fun findTrip(ride: Ride): Trip? = match(ride, parse(fetchDepartures(ride.start)))
 
@@ -145,6 +150,44 @@ object Transitous {
         distanceM(s.lat, s.lon, ride.end.lat, ride.end.lon) <= STOP_RADIUS_M
 
     /**
+     * Did the phone travel with this train? A bus or car from station to station at the same time starts and ends in the
+     * right places, but at a quarter, half and three quarters of the way it is not where the train is. Each [Ride.via]
+     * fix is placed on the straight lines between the train's stops; the train must have been there within a few minutes
+     * (a stop in the open, which makes the delay grow along that leg, is allowed for). Two of three off: not this train.
+     * Only live times can be checked, and a ride without checkpoints passes.
+     */
+    private fun onTheTrain(ride: Ride, dep: Departure, last: Stop): Boolean {
+        if (ride.via.isEmpty() || !dep.realtime) return true
+        val stops = dep.next.takeWhile { it !== last } + last
+        if (stops.any { it.arrival == null || it.scheduledArrival == null }) return true
+        // nodes: where, when, how late (the start has no scheduled time, so the delay counts from there)
+        class Node(val lat: Double, val lon: Double, val at: Instant, val late: Duration)
+        val nodes = listOf(Node(ride.start.lat, ride.start.lon, dep.time, Duration.ZERO)) +
+            stops.map { Node(it.lat, it.lon, it.arrival!!, Duration.between(it.scheduledArrival!!, it.arrival)) }
+        val off = ride.via.count { v ->
+            val (a, b) = nodes.zipWithNext().minByOrNull { (a, b) -> alongM(v, a.lat, a.lon, b.lat, b.lon).first }!! // the leg it is on
+            val (dist, f) = alongM(v, a.lat, a.lon, b.lat, b.lon)
+            val leg = Duration.between(a.at, b.at)
+            val allowance = SLACK.plus(leg.dividedBy(5)).plus((b.late - a.late).coerceAtLeast(Duration.ZERO))
+            dist > OFF_ROUTE_M + distanceM(a.lat, a.lon, b.lat, b.lon) / 10 ||
+                Duration.between(a.at.plus(leg.multipliedBy((f * 1000).toLong()).dividedBy(1000)), v.time).abs() > allowance
+        }
+        return off * 2 < ride.via.size.coerceAtLeast(2)
+    }
+
+    /** Distance of [p] from the segment a-b and how far along it the closest point is (0..1), flat-earth approximation. */
+    private fun alongM(p: Fix, aLat: Double, aLon: Double, bLat: Double, bLon: Double): Pair<Double, Double> {
+        val k = cos(Math.toRadians(aLat))
+        val bx = (bLon - aLon) * k * M_PER_DEG
+        val by = (bLat - aLat) * M_PER_DEG
+        val px = (p.lon - aLon) * k * M_PER_DEG
+        val py = (p.lat - aLat) * M_PER_DEG
+        val len2 = bx * bx + by * by
+        val f = if (len2 == 0.0) 0.0 else ((px * bx + py * by) / len2).coerceIn(0.0, 1.0)
+        return hypot(px - f * bx, py - f * by) to f
+    }
+
+    /**
      * The departure that left around the ride's start and stopped closest in time to where the ride ended.
      * If a train cancelled before it served the same destination, that plan is what the delay counts against.
      */
@@ -155,7 +198,8 @@ object Transitous {
                 d.next.filter {
                     it.arrival != null && reaches(it, ride) &&
                         // live times must agree with the phone; without them a delayed train can't be told apart
-                        (!d.realtime || Duration.between(it.arrival, ride.end.time).abs() <= LATE)
+                        (!d.realtime || Duration.between(it.arrival, ride.end.time).abs() <= LATE) &&
+                        onTheTrain(ride, d, it)
                 }.map { d to it }
             }
             .minByOrNull { (_, s) -> Duration.between(s.arrival, ride.end.time).abs() }
