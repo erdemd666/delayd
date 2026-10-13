@@ -22,6 +22,14 @@ class CompensationTest {
     }
 
     @Test
+    fun `cap is shared with what claimed cases already took`() {
+        assertEquals(375, Compensation.dTicketMonthCt(List(11) { 75L }, takenCt = 1_200))
+        assertEquals(150, Compensation.dTicketMonthCt(listOf(75L), takenCt = 1_200))
+        assertEquals(0, Compensation.dTicketMonthCt(listOf(75L), takenCt = 1_575))
+        assertEquals(0, Compensation.dTicketMonthCt(listOf(75L), takenCt = 2_000))
+    }
+
+    @Test
     fun `payout minimum`() {
         assertFalse(Compensation.payable(399))
         assertTrue(Compensation.payable(400))

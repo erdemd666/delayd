@@ -39,6 +39,16 @@ class FormatTest {
         assertEquals(3, openCases(three, YearMonth.of(2026, 10)).size)
     }
 
+    @Test fun deutschlandticketCapHoldsAcrossStatuses() {
+        val paid = List(4) { trip(70, ClaimStatus.PAID, day = it + 1) }          // 600 ct
+        val claimed = List(3) { trip(70, ClaimStatus.CLAIMED, day = it + 10) }   // 450 ct
+        val open = List(4) { trip(70, day = it + 20) }                           // 600 ct alone, 525 ct left of 1575
+        val t = totals(paid + claimed + open, true)
+        assertEquals(Totals(owed = 525, claimed = 450, recovered = 600), t)
+        assertEquals(525, openCt(paid + claimed + open, YearMonth.of(2026, 10)))
+        assertEquals(0, totals(List(11) { trip(70, ClaimStatus.PAID, day = it + 1) } + paid.map { it.copy(status = ClaimStatus.CLAIMED, train = "x") } + open, true).owed)
+    }
+
     @Test fun singleTicketTotalsNeedAFareAndSkipDismissed() {
         val trips = listOf(trip(130, fareCt = 4000), trip(70, fareCt = 4000), trip(70), trip(130, ClaimStatus.DISMISSED, 4000))
         assertEquals(2000 + 1000, totals(trips, false).owed)

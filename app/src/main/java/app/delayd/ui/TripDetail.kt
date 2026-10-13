@@ -142,7 +142,7 @@ private fun CompensationCard(trip: Trip, trips: List<Trip>, dTicket: Boolean) {
             dTicket -> {
                 val month = trip.month()
                 val cases = trips.filter { it.late && it.month() == month && it.status == ClaimStatus.OPEN }
-                val ct = Compensation.dTicketMonthCt(cases.map { it.delayMin })
+                val ct = openCt(trips, month)
                 BigMoney(money(Compensation.D_TICKET_CASE_CT), color = c.primary)
                 Text(stringResource(R.string.rule_dt, money(Compensation.D_TICKET_CASE_CT), money(Compensation.MIN_PAYOUT_CT)), style = MaterialTheme.typography.bodyMedium)
                 if (trip.status == ClaimStatus.OPEN) Text(pluralStringResource(R.plurals.rule_dt_month, cases.size, monthTitle(month), cases.size, money(ct)), style = MaterialTheme.typography.bodyMedium, color = c.onSurfaceVariant)

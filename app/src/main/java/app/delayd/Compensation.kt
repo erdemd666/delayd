@@ -21,9 +21,16 @@ object Compensation {
         else -> 0
     }
 
-    /** Total for one month of Deutschlandticket trips. */
-    fun dTicketMonthCt(delaysMin: List<Long>): Int =
-        minOf(delaysMin.count { it >= 60 } * D_TICKET_CASE_CT, D_TICKET_PRICE_CT / 4)
+    const val D_TICKET_CAP_CT = D_TICKET_PRICE_CT / 4
+
+    /** Total for one month of Deutschlandticket trips; [takenCt] is what claimed and paid cases of the same month already used of the cap. */
+    fun dTicketMonthCt(delaysMin: List<Long>, takenCt: Int = 0): Int =
+        minOf(delaysMin.count { it >= 60 } * D_TICKET_CASE_CT, (D_TICKET_CAP_CT - takenCt).coerceAtLeast(0))
+
+    /** What claimed and paid cases of [month] already used of that month's cap. */
+    fun dTicketTakenCt(trips: List<Trip>, month: YearMonth, zone: ZoneId): Int = dTicketMonthCt(trips.filter {
+        (it.status == ClaimStatus.CLAIMED || it.status == ClaimStatus.PAID) && YearMonth.from(it.scheduledArrival.atZone(zone)) == month
+    }.map { it.delayMin })
 
     fun payable(ct: Int) = ct >= MIN_PAYOUT_CT
 
@@ -34,7 +41,7 @@ object Compensation {
         if (month.toString() == notified) return null
         val ct = dTicketMonthCt(trips.filter {
             it.status == ClaimStatus.OPEN && YearMonth.from(it.scheduledArrival.atZone(zone)) == month
-        }.map { it.delayMin })
+        }.map { it.delayMin }, dTicketTakenCt(trips, month, zone))
         return if (payable(ct)) month to ct else null
     }
 }

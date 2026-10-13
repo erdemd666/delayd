@@ -47,8 +47,8 @@ fun claimTextSingle(trip: Trip, fareCt: Int): String = buildString {
     append("Entschädigung: ${if (trip.delayMin >= 120) 50 else 25} % = ${money(owed, DE)}")
 }
 
-fun claimTextMonth(month: YearMonth, cases: List<Trip>): String = buildString {
-    val total = Compensation.dTicketMonthCt(cases.map { it.delayMin })
+fun claimTextMonth(month: YearMonth, cases: List<Trip>, takenCt: Int = 0): String = buildString {
+    val total = Compensation.dTicketMonthCt(cases.map { it.delayMin }, takenCt)
     appendLine("Fahrgastrechte – Sammelantrag Deutschlandticket, ${monthTitle(month, DE)}")
     appendLine("Fahrkarte: Deutschlandticket")
     appendLine("Verspätungen von mindestens 60 Minuten am Zielbahnhof:")
@@ -122,15 +122,15 @@ fun ClaimContent(trip: Trip?, onBack: () -> Unit, suggestedFareCt: Int? = null, 
 @Composable
 fun MonthClaimScreen(month: YearMonth, trips: List<Trip>, onBack: () -> Unit, onDone: () -> Unit) {
     val cases = openCases(trips, month)
-    MonthClaimContent(month, cases, onBack) {
+    MonthClaimContent(month, cases, onBack, takenCt = Compensation.dTicketTakenCt(trips, month, ZONE)) {
         cases.forEach { c -> TripStore.update(c.id) { it.copy(status = ClaimStatus.CLAIMED) } }
         onDone()
     }
 }
 
 @Composable
-fun MonthClaimContent(month: YearMonth, cases: List<Trip>, onBack: () -> Unit, onSubmitted: () -> Unit) {
-    val total = Compensation.dTicketMonthCt(cases.map { it.delayMin })
+fun MonthClaimContent(month: YearMonth, cases: List<Trip>, onBack: () -> Unit, takenCt: Int = 0, onSubmitted: () -> Unit) {
+    val total = Compensation.dTicketMonthCt(cases.map { it.delayMin }, takenCt)
     val payable = Compensation.payable(total)
     Screen(stringResource(R.string.claim_month_title, monthTitle(month)), onBack) {
         if (cases.isEmpty()) { item { Text(stringResource(R.string.month_empty), Modifier.padding(Space.xl)) }; return@Screen }
@@ -149,12 +149,12 @@ fun MonthClaimContent(month: YearMonth, cases: List<Trip>, onBack: () -> Unit, o
         item {
             Panel {
                 BigMoney(money(total), color = MaterialTheme.colorScheme.primary)
-                Text(pluralStringResource(R.plurals.month_total_body, cases.size, cases.size, money(Compensation.D_TICKET_CASE_CT), money(Compensation.D_TICKET_PRICE_CT / 4)), style = MaterialTheme.typography.bodyMedium)
+                Text(pluralStringResource(R.plurals.month_total_body, cases.size, cases.size, money(Compensation.D_TICKET_CASE_CT), money(Compensation.D_TICKET_CAP_CT)), style = MaterialTheme.typography.bodyMedium)
                 if (!payable) Text(stringResource(R.string.rule_below_min, money(Compensation.MIN_PAYOUT_CT)), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
         item { StepTitle(3, stringResource(R.string.claim_step_send)) }
-        item { ClaimSend(claimTextMonth(month, cases), payable, R.string.claim_month_submitted, onSubmitted) }
+        item { ClaimSend(claimTextMonth(month, cases, takenCt), payable, R.string.claim_month_submitted, onSubmitted) }
     }
 }
 
@@ -206,5 +206,5 @@ private fun ClaimPreview() = DelaydTheme(dark = false) { ClaimContent(sampleTrip
 @Composable
 private fun MonthClaimPreview() = DelaydTheme(dark = true) {
     val m = YearMonth.of(2026, 10)
-    MonthClaimContent(m, List(3) { sampleTrips[0].copy(train = "ICE ${1600 + it}") }, {}, {})
+    MonthClaimContent(m, List(3) { sampleTrips[0].copy(train = "ICE ${1600 + it}") }, {}, onSubmitted = {})
 }
