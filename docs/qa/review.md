@@ -35,4 +35,21 @@ Scope: every Kotlin source in `app/src` (main, debug, test), manifests, resource
 
 ## Lint
 
-See the lint section appended below after the final run.
+0 errors, 10 warnings, all consciously accepted:
+
+| Warning | Decision |
+|---|---|
+| `GradleDependency` compose-bom 2025.06.00 to 2026.09.00, activity-compose 1.10.1 to 1.13.0 | **Not upgraded.** The pinned versions are what the whole e2e run, the R8 smoke test and the screenshots were done with. A BOM jump is a 15-month leap of Compose/Material3 that changes layout and deprecates APIs (`LocalClipboardManager` etc.) and may force AGP/compileSdk changes, with no user-facing gain for 1.0. Revisit right after release in a dedicated change with a full e2e. |
+| `NewerVersionAvailable` org.json (test only) | Test-only stub for JVM tests. Left. |
+| `AndroidGradlePluginVersion` Gradle 8.14 to 8.14.6 | Patch release of the wrapper. Left; reproducible-build and CI settings were validated on 8.14. |
+| `UseKtx` x5 (`SharedPreferences.edit`) | Would need the `core-ktx` dependency for a style change. Left (plan: no dependency without a reason). |
+| `DataExtractionRules` on `android:allowBackup="false"` | Intentional (finding 2): no cloud backup and no device transfer of trips or queued coordinates. A `dataExtractionRules` XML would be more code for the same effect. |
+
+## Accessibility (found and fixed)
+
+| Sev | Where | Problem | Fix (81b0539) |
+|---|---|---|---|
+| Medium | `ui/Onboarding.kt` PermissionRow | Two buttons both announced just "Allow". | Spoken label "Allow: Precise location" / "Allow: Notifications". |
+| Medium | `ui/Home.kt` FAB | The "Add a ride" label did not show up in the accessibility tree dump (empty clickable). | Explicit content description. |
+
+Touch targets (uiautomator bounds) are at least 126 px = 48 dp on Home, Onboarding, Settings, trip detail, claim and manual add; 200 % font scale was checked on Onboarding, Home, Settings and trip detail (no clipping, buttons wrap).
