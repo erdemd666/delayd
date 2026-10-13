@@ -48,12 +48,16 @@ class RideQueue(private val file: File, private val clock: () -> Instant = Insta
                 break // network or server trouble: don't try the next journey, don't hammer
             } catch (e: JSONException) {
                 fail(chainItems, BAD_DATA_WEIGHT, null, ageOut)
-            } catch (e: DateTimeException) {
+            } catch (e: RuntimeException) { // DateTimeException or a bug: one bad ride must not block the journeys behind it
                 fail(chainItems, BAD_DATA_WEIGHT, null, ageOut)
             }
         }
         return synchronized(this) { items.filter { it.notBefore > now || it.attempts > 0 }.minOfOrNull { it.notBefore } }
     }
+
+    /** Drops every waiting ride; they hold coordinates, so "delete all data" must reach them. */
+    @Synchronized
+    fun clear() = save(emptyList())
 
     @Synchronized
     private fun remove(done: List<Item>) = save(items - done.toSet())

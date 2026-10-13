@@ -31,7 +31,7 @@ val Trip.late get() = delayMin >= 60
 
 /** Parses "4,50" / "4.5" into cents; null when empty or not a positive amount. */
 fun parseFareCt(text: String): Int? =
-    text.trim().replace(',', '.').toBigDecimalOrNull()?.movePointRight(2)?.toInt()?.takeIf { it in 1..99_999 }
+    text.trim().replace(',', '.').toBigDecimalOrNull()?.movePointRight(2)?.toLong()?.takeIf { it in 1..99_999 }?.toInt()
 
 /** What a single trip is worth: single ticket from its fare, Deutschlandticket per-case share. Null = unknown. */
 fun tripCt(t: Trip, dTicket: Boolean): Int? = when {

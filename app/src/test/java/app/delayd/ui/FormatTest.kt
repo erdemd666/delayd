@@ -26,6 +26,8 @@ class FormatTest {
         assertNull(parseFareCt("abc"))
         assertNull(parseFareCt("0"))
         assertNull(parseFareCt(""))
+        assertNull(parseFareCt("42949672.96")) // 2^32 cents must not wrap to 0
+        assertNull(parseFareCt("42949722.96")) // ... or to 50.00
     }
 
     @Test fun deutschlandticketTotalsUseMonthlyPoolAndMinimum() {

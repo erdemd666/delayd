@@ -141,4 +141,22 @@ class RideQueueTest {
         assertEquals(Duration.ofMinutes(4), RideQueue.backoff(3))
         assertEquals(Duration.ofHours(1), RideQueue.backoff(9))
     }
+
+    @Test
+    fun `clear empties the queue and the file`() {
+        val q = queue().apply { add(ride) }
+        q.clear()
+        assertEquals(0, q.size)
+        assertEquals(0, queue().size)
+    }
+
+    @Test
+    fun `an unexpected error on one journey does not block the next one`() {
+        val other = rideAt(100, 130, from = 14.0, to = 14.3)
+        now = T0.plus(Duration.ofHours(5))
+        val q = queue().apply { add(ride); add(other) }
+        val (trips, _) = q.run(find = { if (it == ride) throw IllegalStateException("bug") else trip })
+        assertEquals(listOf(trip), trips)
+        assertEquals(1, q.size) // the bad ride waits for a retry, it is not lost at once
+    }
 }

@@ -9,6 +9,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
@@ -141,7 +142,7 @@ fun MonthClaimContent(month: YearMonth, cases: List<Trip>, onBack: () -> Unit, o
         item {
             Panel {
                 BigMoney(money(total), color = MaterialTheme.colorScheme.primary)
-                Text(stringResource(R.string.month_total_body, cases.size, money(Compensation.D_TICKET_CASE_CT), money(Compensation.D_TICKET_PRICE_CT / 4)), style = MaterialTheme.typography.bodyMedium)
+                Text(pluralStringResource(R.plurals.month_total_body, cases.size, cases.size, money(Compensation.D_TICKET_CASE_CT), money(Compensation.D_TICKET_PRICE_CT / 4)), style = MaterialTheme.typography.bodyMedium)
                 if (!payable) Text(stringResource(R.string.rule_below_min, money(Compensation.MIN_PAYOUT_CT)), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }

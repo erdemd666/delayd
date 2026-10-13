@@ -244,7 +244,7 @@ private fun LazyListScope.stopStep(m: AddRideModel) {
     if (stops.isEmpty()) item { Hint(stringResource(R.string.add_no_stops)) }
     else items(stops) { s ->
         PickRow(s.name, stringResource(R.string.scheduled_time, time(s.scheduledArrival!!))) {
-            m.stop = s; m.typed = null; m.step = 4
+            m.stop = s; m.typed = null; m.existingId = null; m.step = 4
         }
     }
 }
