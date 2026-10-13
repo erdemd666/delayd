@@ -51,4 +51,14 @@ class FormatTest {
         assertTrue(text.contains("Entschädigung: 25 % = 10,00\u00a0€"))
         assertTrue(text.contains("Tatsächliche Ankunft: 13:15 Uhr (+75 Min.)"))
     }
+
+    @Test fun homeOffersLastMonthWhileItsPoolIsPayable() {
+        val sep = { d: Int, m: Long -> Trip("ICE $d", "A", "B", Instant.parse("2026-09-%02dT10:00:00Z".format(d)),
+            Instant.parse("2026-09-%02dT10:00:00Z".format(d)).plusSeconds(m * 60), true) }
+        val oct = YearMonth.of(2026, 10)
+        val three = listOf(sep(1, 70), sep(2, 80), sep(3, 90))
+        assertEquals(YearMonth.of(2026, 9), claimMonth(three, oct))
+        assertEquals(oct, claimMonth(three.take(2), oct))                       // 3 EUR: not payable yet
+        assertEquals(oct, claimMonth(three.map { it.copy(status = ClaimStatus.CLAIMED) }, oct))
+    }
 }

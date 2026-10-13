@@ -58,3 +58,9 @@ fun totals(trips: List<Trip>, dTicket: Boolean) = Totals(
 /** Open delayed Deutschlandticket cases of [month], the pool a monthly claim is built from. */
 fun openCases(trips: List<Trip>, month: YearMonth) =
     trips.filter { it.status == ClaimStatus.OPEN && it.late && it.month() == month }.sortedBy { it.scheduledArrival }
+
+/** The month Home offers to claim: last month while it still has a payable pool (the notification points there), else this one. */
+fun claimMonth(trips: List<Trip>, now: YearMonth): YearMonth {
+    val last = now.minusMonths(1)
+    return if (Compensation.payable(Compensation.dTicketMonthCt(openCases(trips, last).map { it.delayMin }))) last else now
+}
