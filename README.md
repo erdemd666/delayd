@@ -12,10 +12,9 @@ Free and open source. No accounts, no ads, no analytics, no Google Play Services
 
 ## Screenshots
 
-<!-- Produced by the UI workstream; filenames are placeholders until then. -->
-| Home | Trip detail | Claim |
-|---|---|---|
-| ![Home](docs/screenshots/home.png) | ![Trip detail](docs/screenshots/trip-detail.png) | ![Claim](docs/screenshots/claim.png) |
+| Home | Trip detail | Monthly claim | Settings |
+|---|---|---|---|
+| ![Home](docs/screenshots/home-light-en.png) | ![Trip detail](docs/screenshots/trip-detail-light-en.png) | ![Monthly claim](docs/screenshots/claim-month-light-en.png) | ![Settings](docs/screenshots/settings-dark-en.png) |
 
 ## How it works
 

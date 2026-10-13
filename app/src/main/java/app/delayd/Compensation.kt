@@ -27,7 +27,6 @@ object Compensation {
 
     fun payable(ct: Int) = ct >= MIN_PAYOUT_CT
 
-    fun format(ct: Int) = "%d,%02d €".format(ct / 100, ct % 100)
 
     /** Last month's open Deutschlandticket cases once they reach the payout minimum, unless [notified] (a YearMonth string) already covers it. */
     fun monthlyClaim(trips: List<Trip>, now: Instant, zone: ZoneId, notified: String?): Pair<YearMonth, Int>? {

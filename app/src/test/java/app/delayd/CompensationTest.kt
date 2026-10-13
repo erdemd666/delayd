@@ -22,10 +22,8 @@ class CompensationTest {
     }
 
     @Test
-    fun `payout minimum and format`() {
+    fun `payout minimum`() {
         assertFalse(Compensation.payable(399))
         assertTrue(Compensation.payable(400))
-        assertEquals("15,75 €", Compensation.format(1_575))
-        assertEquals("4,05 €", Compensation.format(405))
     }
 }

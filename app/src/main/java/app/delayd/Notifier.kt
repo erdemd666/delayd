@@ -59,7 +59,7 @@ object Notifier {
     }
 
     private fun build(c: Context, channel: String, title: String, text: String, tap: PendingIntent) =
-        Notification.Builder(c, channel).setSmallIcon(R.drawable.ic_train).setContentTitle(title).setContentText(text)
+        Notification.Builder(c, channel).setSmallIcon(R.drawable.ic_stat_delayd).setContentTitle(title).setContentText(text)
             .setContentIntent(tap).setAutoCancel(channel != CH_TRACK).build()
 
     private fun show(c: Context, id: Int, n: Notification) = c.getSystemService(NotificationManager::class.java).notify(id, n)

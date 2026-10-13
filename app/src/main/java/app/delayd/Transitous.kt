@@ -60,7 +60,7 @@ class LookupException(message: String, val retryAfterSec: Long? = null) : IOExce
 object Transitous {
     private const val BASE = "https://api.transitous.org/api/v6/stoptimes"
     private const val RAIL = "HIGHSPEED_RAIL,LONG_DISTANCE,NIGHT_RAIL,REGIONAL_RAIL,SUBURBAN"
-    private const val USER_AGENT = "Delayd/0.1 (github.com/erdem61/delayd)"
+    private const val USER_AGENT = "Delayd/${BuildConfig.VERSION_NAME} (github.com/erdem61/delayd)"
     private const val STOP_RADIUS_M = 800.0
     private val EARLY: Duration = Duration.ofMinutes(10)
     private val LATE: Duration = Duration.ofMinutes(15)
