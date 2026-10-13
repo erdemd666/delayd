@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="back">Zurück</string>
+    <string name="next">Weiter</string>
+    <string name="get_started">Los geht’s</string>
+    <string name="cancel">Abbrechen</string>
+    <string name="close">Schließen</string>
+    <string name="settings">Einstellungen</string>
+    <string name="delay_badge">+%1$d Min.</string>
+    <string name="status_open">Offen</string>
+    <string name="status_claimed">Beantragt</string>
+    <string name="status_paid">Erstattet</string>
+    <string name="status_dismissed">Verworfen</string>
+    <string name="attribution_short">Zugdaten: Transitous · © OpenStreetMap-Mitwirkende</string>
+
+    <!-- Home -->
+    <string name="detect_title">Fahrterkennung</string>
+    <string name="detect_on">An</string>
+    <string name="detect_off">Aus</string>
+    <string name="detect_riding">Fahrt läuft</string>
+    <string name="detect_on_body">Achtet im Hintergrund auf deine Zugfahrten.</string>
+    <string name="detect_riding_body">Delayd begleitet diese Fahrt und prüft deine Ankunft.</string>
+    <string name="detect_off_body">Einschalten, damit deine Zugfahrten automatisch erkannt werden.</string>
+    <string name="detect_blocked_body">Standortzugriff ist gesperrt. Tippe, um die App-Einstellungen zu öffnen.</string>
+    <string name="detect_coarse_body">Nur ungefährer Standort erlaubt. Die Erkennung braucht den genauen Standort.</string>
+    <string name="owed_now">Dir zustehend</string>
+    <string name="claimed">Beantragt</string>
+    <string name="recovered">Zurückerhalten</string>
+    <plurals name="needs_fare">
+        <item quantity="one">Für %d verspätete Fahrt fehlt der Fahrpreis, um deinen Anspruch zu berechnen.</item>
+        <item quantity="other">Für %d verspätete Fahrten fehlt der Fahrpreis, um deinen Anspruch zu berechnen.</item>
+    </plurals>
+    <string name="dt_title">Deutschlandticket · %1$s</string>
+    <plurals name="dt_cases">
+        <item quantity="one">Bisher %1$d Verspätung ab 60 Min.: %2$s</item>
+        <item quantity="other">Bisher %1$d Verspätungen ab 60 Min.: %2$s</item>
+    </plurals>
+    <string name="dt_progress_desc">%1$s von %2$s für einen Antrag</string>
+    <string name="dt_ready">%1$s können beantragt werden.</string>
+    <string name="dt_more">Noch %1$s bis zum Antrag. Unter dem Mindestbetrag wird nichts ausgezahlt.</string>
+    <string name="dt_claim">Diesen Monat beantragen</string>
+    <string name="empty_title">Noch keine Fahrten</string>
+    <string name="empty_on">Die Erkennung ist an. Steig in einen Zug, den Rest übernimmt Delayd.</string>
+    <string name="empty_off">Schalte die Fahrterkennung ein und steig in einen Zug. Den Rest übernimmt Delayd.</string>
+
+    <!-- Trip detail -->
+    <string name="trip_title">Fahrt</string>
+    <string name="trip_missing">Diese Fahrt ist nicht mehr in deinem Verlauf.</string>
+    <string name="action_claim">Antrag starten</string>
+    <string name="action_dismiss">Verwerfen</string>
+    <string name="action_mark_paid">Als erstattet markieren</string>
+    <string name="action_reopen">Wieder öffnen</string>
+    <string name="action_unpay">Noch nicht erstattet</string>
+    <string name="action_delete">Fahrt löschen</string>
+    <string name="delete_trip_title">Fahrt löschen?</string>
+    <string name="delete_trip_body">Sie verschwindet aus deinem Verlauf und aus allen Summen. Das lässt sich nicht rückgängig machen.</string>
+    <string name="route_title">Strecke</string>
+    <string name="departed_from">Von</string>
+    <string name="arrived_at">Nach</string>
+    <string name="scheduled_time">Planmäßig %1$s</string>
+    <string name="actual_time">Tatsächlich %1$s · +%2$d Min.</string>
+    <string name="actual_short">%1$s (+%2$d Min.)</string>
+    <string name="source_title">Woher die Zeiten stammen</string>
+    <string name="source_live">Live-Daten</string>
+    <string name="source_phone">Von deinem Handy gemessen</string>
+    <string name="source_live_body">Die Ankunftszeit stammt aus den Echtzeitdaten des Verkehrsunternehmens über Transitous.</string>
+    <string name="source_phone_body">Es lagen keine Live-Daten vor. Als Ankunft gilt der Moment, in dem dein Handy am Bahnhof zum Stehen kam. Die Bahn kann das mit ihren eigenen Daten abgleichen.</string>
+    <string name="comp_title">Entschädigung</string>
+    <string name="rule_none">Weniger als 60 Minuten Verspätung. Für diese Fahrt gibt es nichts.</string>
+    <string name="rule_dt">Mit dem Deutschlandticket zählt jede Verspätung ab 60 Minuten mit %1$s. Die Fälle werden pro Monat gesammelt und ab %2$s ausgezahlt.</string>
+    <string name="rule_dt_month">%1$s: %2$d offene Fälle, bisher %3$s.</string>
+    <string name="rule_single_nofare" formatted="false">Trage im Antrag deinen Fahrpreis ein, um den Betrag zu sehen. Ab 60 Minuten Verspätung gibt es 25 % des Fahrpreises, ab 120 Minuten 50 %.</string>
+    <string name="rule_single_25">Ab 60 Minuten Verspätung: 25 %% von %1$s Fahrpreis.</string>
+    <string name="rule_single_50">Ab 120 Minuten Verspätung: 50 %% von %1$s Fahrpreis.</string>
+    <string name="rule_below_min">Unter %1$s wird nichts ausgezahlt.</string>
+    <string name="rule_exceptions">Verspätungen durch außergewöhnliche Umstände, etwa schweres Unwetter, können ausgeschlossen sein. Die Bahn entscheidet über jeden Antrag.</string>
+
+    <!-- Claim -->
+    <string name="claim_title">Antrag</string>
+    <string name="claim_month_title">Antrag für %1$s</string>
+    <string name="claim_step_facts">Angaben prüfen</string>
+    <string name="claim_step_fare">Dein Fahrpreis</string>
+    <string name="claim_step_cases">Verspätungen in diesem Antrag</string>
+    <string name="claim_step_total">Betrag</string>
+    <string name="claim_step_send">An die Bahn senden</string>
+    <string name="fact_train">Zug</string>
+    <string name="fact_date">Datum</string>
+    <string name="fact_route">Strecke</string>
+    <string name="fact_scheduled">Planmäßige Ankunft</string>
+    <string name="fact_actual">Tatsächliche Ankunft</string>
+    <string name="fare_label">Fahrpreis (€)</string>
+    <string name="fare_hint">Gib ein, was du für diese Fahrt bezahlt hast.</string>
+    <string name="fare_invalid">Gib einen Betrag wie 35,50 ein.</string>
+    <string name="fare_owed">Dir stehen %1$s zu.</string>
+    <string name="fare_below">Das sind %1$s und damit weniger als der Mindestbetrag von %2$s. Die Bahn zahlt das nicht aus.</string>
+    <string name="month_empty">Für diesen Monat gibt es keine offenen Verspätungen.</string>
+    <string name="month_total_body">%1$d Fälle × %2$s, höchstens %3$s (25 %% des Monatspreises).</string>
+    <string name="claim_exact">Genau dieser Text wird kopiert. Er ist auf Deutsch, weil die Bahn Anträge auf Deutsch bearbeitet.</string>
+    <string name="claim_text_pending">Gib deinen Fahrpreis ein, dann siehst du hier den Antragstext.</string>
+    <string name="copy_text">Text kopieren</string>
+    <string name="copied">Kopiert</string>
+    <string name="open_db">DB-Antragsseite öffnen</string>
+    <string name="claim_login_note">Die Bahn verlangt eine Anmeldung auf bahn.de oder im DB Navigator. Füge den Text dort ein oder nutze das Papierformular. Bestätige danach hier, dass du den Antrag gesendet hast.</string>
+    <string name="claim_submitted">Ich habe den Antrag gesendet</string>
+    <string name="claim_month_submitted">Ich habe den Monatsantrag gesendet</string>
+
+    <!-- Onboarding -->
+    <string name="onb_progress">Schritt %1$d von %2$d</string>
+    <string name="onb1_title">Hol dir zurück, was dir ein verspäteter Zug schuldet</string>
+    <string name="onb1_body">Delayd erkennt deine Zugfahrten, prüft, wie spät du angekommen bist, und bereitet deinen Antrag nach den Fahrgastrechten vor.</string>
+    <string name="onb1_rules" formatted="false">25 % des Fahrpreises ab 60 Minuten Verspätung, 50 % ab 120.\nDeutschlandticket: 1,50 € pro Verspätung, pro Monat gesammelt.\nUnter 4 € wird nichts ausgezahlt.</string>
+    <string name="onb2_title">So funktioniert es, und das bleibt privat</string>
+    <string name="onb2_body">Alles läuft auf deinem Handy. Ein Konto brauchst du nicht.</string>
+    <string name="onb2_p1">Dein Standortverlauf verlässt nie dein Gerät.</string>
+    <string name="onb2_p2">Gesendet wird nur eine Fahrplanabfrage für die Bahnhofsumgebung, an Transitous.</string>
+    <string name="onb2_p3">Keine Werbung, kein Tracking, keine Analyse.</string>
+    <string name="onb3_title">Erlaube, was die Erkennung braucht</string>
+    <string name="onb3_body">Zwei Berechtigungen reichen dafür. Du kannst sie jederzeit in den Einstellungen ändern.</string>
+    <string name="onb3_skip_note">Du kannst auch ohne sie fortfahren, aber Fahrten werden erst erkannt, wenn der Standort erlaubt ist.</string>
+    <string name="perm_location">Genauer Standort</string>
+    <string name="perm_location_why">Nötig, um zu sehen, wo eine Fahrt beginnt und endet, auch bei geschlossener App.</string>
+    <string name="perm_location_coarse">Nur ungefährer Standort erlaubt. Erlaube den genauen Standort, damit Bahnhöfe zugeordnet werden können.</string>
+    <string name="perm_notifications">Benachrichtigungen</string>
+    <string name="perm_notifications_why">Damit du erfährst, wenn ein Zug 60 Minuten oder mehr Verspätung hatte und wenn ein Monatsantrag bereit ist.</string>
+    <string name="perm_allowed">Erlaubt</string>
+    <string name="perm_blocked">Android fragt nicht noch einmal. Öffne die App-Einstellungen und erlaube es dort.</string>
+    <string name="allow">Erlauben</string>
+    <string name="open_app_settings">App-Einstellungen öffnen</string>
+    <string name="onb4_title">Erkennung am Laufen halten</string>
+    <string name="onb4_body">Die Akku-Optimierung kann Apps stoppen, die im Hintergrund arbeiten. Wenn Delayd uneingeschränkt laufen darf, bleibt die Erkennung zuverlässig und braucht kaum Akku.</string>
+    <string name="onb4_hint">Suche in der Liste Delayd und wähle „Nicht optimieren“ oder „Uneingeschränkt“. Du kannst das überspringen und später nachholen.</string>
+    <string name="open_battery">Akku-Einstellungen öffnen</string>
+    <string name="battery">Akku</string>
+    <string name="battery_ok">Der Akkuverbrauch ist nicht eingeschränkt.</string>
+
+    <!-- Settings -->
+    <string name="set_ticket">Dein Ticket</string>
+    <string name="ticket_single">Einzelfahrkarten</string>
+    <string name="ticket_single_body">Die Entschädigung ist ein Anteil dessen, was du für die jeweilige Fahrt bezahlt hast.</string>
+    <string name="ticket_dt">Deutschlandticket</string>
+    <string name="ticket_dt_body">Ein fester Betrag pro Verspätung, einmal im Monat beantragt.</string>
+    <string name="set_detection">Erkennung</string>
+    <string name="set_health">Funktionscheck</string>
+    <string name="health_ok">Alles in Ordnung.</string>
+    <string name="health_location_missing">Nicht erlaubt. Fahrten können nicht erkannt werden.</string>
+    <string name="health_notifications_missing">Nicht erlaubt. Du erfährst nichts von Verspätungen.</string>
+    <string name="health_battery_restricted">Optimiert. Android kann die Erkennung im Hintergrund pausieren.</string>
+    <string name="set_data">Deine Daten</string>
+    <string name="data_body">Fahrten werden nur auf diesem Handy gespeichert. Exportiere sie als JSON oder lösche alles.</string>
+    <string name="export_data">Daten exportieren</string>
+    <string name="delete_all">Alle Daten löschen</string>
+    <string name="delete_all_title">Alle Daten löschen?</string>
+    <string name="delete_all_body">Alle Fahrten und Antragsstatus auf diesem Handy werden entfernt. Das lässt sich nicht rückgängig machen.</string>
+    <string name="delete_all_confirm">Alles löschen</string>
+    <string name="set_about">Über Delayd</string>
+    <string name="privacy_policy">Datenschutzerklärung</string>
+    <string name="licenses">Open-Source-Lizenzen</string>
+    <string name="licenses_body">Delayd ist Open Source unter der MIT-Lizenz.\n\nGebaut mit AndroidX, Jetpack Compose und Material 3 (Apache License 2.0).\n\nFahrplandaten: Transitous (transitous.org/sources). Kartendaten © OpenStreetMap-Mitwirkende (ODbL).\n\nDelayd ist eine unabhängige App und steht in keiner Verbindung zur Deutschen Bahn.</string>
+    <string name="source_code">Quellcode</string>
+    <string name="attribution">Datenquellen: Transitous und OpenStreetMap</string>
+    <string name="version">Version %1$s</string>
+</resources>
