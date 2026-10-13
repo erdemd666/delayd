@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="core_ch_tracking">Fahrterkennung</string>
+    <string name="core_ch_delays">Verspätungen</string>
+    <string name="core_ch_claims">Monatlicher Antrag</string>
+    <string name="core_ch_resume">Erkennung fortsetzen</string>
+    <string name="core_tracking_title">Suche nach Zugfahrten</string>
+    <string name="core_tracking_text">Delayd bemerkt Verspätungen für dich</string>
+    <string name="core_delay_title">%1$s hatte %2$d Min. Verspätung</string>
+    <string name="core_delay_text">%1$s → %2$s. Du kannst eine Entschädigung beantragen.</string>
+    <string name="core_claim_title">Dein Deutschlandticket-Antrag für %1$s ist bereit</string>
+    <string name="core_claim_text">%1$s warten auf dich. Tippen zum Prüfen und Beantragen.</string>
+    <string name="core_resume_title">Erkennung pausiert</string>
+    <string name="core_resume_text">Tippen, um die Suche nach Zugfahrten fortzusetzen.</string>
+</resources>

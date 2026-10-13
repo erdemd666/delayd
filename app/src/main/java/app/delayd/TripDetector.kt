@@ -19,10 +19,12 @@ data class Ride(val start: Fix, val end: Fix)
 class TripDetector(private val onRide: (Ride) -> Unit) {
     private var last: Fix? = null
     private var still: Fix? = null
-    private var start: Fix? = null
+    @Volatile private var start: Fix? = null
     private var slowSince: Fix? = null
 
     val moving get() = start != null
+    /** Where the ride in progress began. */
+    val current: Fix? get() = start
 
     fun add(fix: Fix) {
         val prev = last
@@ -32,12 +34,14 @@ class TripDetector(private val onRide: (Ride) -> Unit) {
 
         val s = start
         if (s == null) {
+            // fixes after a long silence (idle without polling) say nothing about speed in between
+            if (Duration.between(prev.time, fix.time) > MAX_SILENCE) { still = fix; return }
             if (fast) start = still ?: prev else still = fix
             return
         }
         if (fast) { slowSince = null; return }
         val slow = slowSince ?: fix.also { slowSince = it }
-        // shortcut: a signal stop longer than END_AFTER splits the ride, merge rides at the same spot if this shows up
+        // a stop longer than END_AFTER splits the ride; Journeys joins the pieces later
         if (Duration.between(slow.time, fix.time) >= END_AFTER) {
             if (distanceM(s, slow) >= MIN_RIDE_M) onRide(Ride(s, slow))
             start = null
@@ -49,6 +53,7 @@ class TripDetector(private val onRide: (Ride) -> Unit) {
     companion object {
         const val FAST_MPS = 12.0 // ~43 km/h
         const val MIN_RIDE_M = 3_000.0
+        val MAX_SILENCE: Duration = Duration.ofMinutes(10)
         val END_AFTER: Duration = Duration.ofMinutes(10)
     }
 }
