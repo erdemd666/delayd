@@ -27,3 +27,5 @@ Delayd is free software under the MIT license. Source code: github.com/erdem61/d
 • Delayd is an independent project and is not affiliated with Deutsche Bahn.
 
 Timetable data: Transitous (transitous.org/sources) and OpenStreetMap contributors.
+
+A product of erdem6.com

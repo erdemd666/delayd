@@ -4,6 +4,17 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Added
+- German is now the default language (English stays available). In-app language choice in Settings (Android 13+), also in Android's per-app language settings. German dates with weekdays, `4,50 €`.
+- Quick Settings tile to turn ride detection on and off.
+- "Kopieren & DB öffnen" copies the claim text and opens the DB page in one tap.
+- The ticket price of the last claim on a route is pre-filled next time.
+- Delay notifications have "Claim now" and "Not relevant" actions.
+- "A product of erdem6.com" line in Settings and onboarding.
+
+### Changed
+- German wording reviewed (Fahrgastrechte, Entschädigung, Verspätung am Zielbahnhof).
+
 ## [1.0.0] - Unreleased
 
 First public release.
