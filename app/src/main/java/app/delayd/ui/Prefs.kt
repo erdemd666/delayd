@@ -14,8 +14,13 @@ class Prefs(context: Context) {
 
     fun chooseDTicket(v: Boolean) { dTicket = v; sp.edit().putBoolean("dTicket", v).apply() }
     fun finishOnboarding() { onboarded = true; sp.edit().putBoolean("onboarded", true).apply() }
+    private fun editor() = sp.edit()
     fun fareFor(trip: Trip) = FareMemory.lookup(sp.getString("fares", null), trip.from, trip.to)
-    fun rememberFare(trip: Trip, ct: Int) = sp.edit().apply { putString("fares", FareMemory.remember(sp.getString("fares", null), trip.from, trip.to, ct)) }.apply()
+    fun rememberFare(trip: Trip, ct: Int) {
+        val e = editor()
+        e.putString("fares", FareMemory.remember(sp.getString("fares", null), trip.from, trip.to, ct))
+        e.apply()
+    }
     /** Android only reports "don't ask again" after we asked at least once. */
     fun asked(permission: String) = sp.getBoolean("asked.$permission", false)
     fun markAsked(permissions: Array<String>) = sp.edit().apply { permissions.forEach { putBoolean("asked.$it", true) } }.apply()
