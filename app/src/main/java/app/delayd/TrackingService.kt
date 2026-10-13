@@ -43,6 +43,7 @@ class TrackingService : Service(), LocationListener {
     private var watchUntil = 0L
     private var motion: Sensor? = null
     private var foreground = false
+    private var stopping = false
     private val endWatch = Runnable { updateRate() }
     private val onMotion = object : TriggerEventListener() {
         override fun onTrigger(event: TriggerEvent?) {
@@ -95,6 +96,8 @@ class TrackingService : Service(), LocationListener {
 
     override fun onDestroy() {
         lm.removeUpdates(this)
+        stopping = true
+        detector.flush() // a ride in progress is closed at the last fix, not lost
         main.removeCallbacksAndMessages(null)
         if (foreground) {
             // only a deliberate stop gets here; a kill by the system or an update skips onDestroy, so we come back
@@ -143,6 +146,7 @@ class TrackingService : Service(), LocationListener {
     }
 
     private fun onRide(ride: Ride) {
+        if (stopping) return Pipeline.queue(this).add(ride) // the worker is going away; the queue write is small
         worker.execute {
             Pipeline.queue(this).add(ride)
             drain()

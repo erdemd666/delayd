@@ -72,6 +72,14 @@ class TripDetector(private val onRide: (Ride) -> Unit) {
         }
     }
 
+    /** Detection is being switched off: a ride in progress ends at the last fix and goes through the usual size and noise rules. */
+    fun flush() {
+        val s = start ?: return
+        start = null
+        slowSince = null
+        last?.let { close(s, it) }
+    }
+
     /** Pieces of one journey count together towards [MIN_RIDE_M]: a short piece before or after a long stop is still part of it. */
     private fun close(s: Fix, end: Fix) {
         val before = carry?.takeIf { Journeys.connects(it.ride.end, s) }

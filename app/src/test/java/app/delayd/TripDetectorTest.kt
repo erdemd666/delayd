@@ -107,3 +107,44 @@ class TripDetectorTest {
         assertEquals(1_600.0, distanceM(rides[1].start, rides[1].end), 300.0)
     }
 }
+
+class TripDetectorFlushTest {
+    private val t0 = Instant.parse("2026-10-13T08:00:00Z")
+    private fun fix(sec: Long, northM: Double) = Fix(t0.plusSeconds(sec), 52.0 + northM / 111_195.0, 13.0)
+
+    private fun ride(movingFixes: Int): Pair<TripDetector, List<Ride>> {
+        val rides = mutableListOf<Ride>()
+        val d = TripDetector { rides += it }
+        var t = 0L
+        var pos = 0.0
+        repeat(3) { t += 10; d.add(fix(t, pos)) }
+        repeat(movingFixes) { t += 10; pos += 300; d.add(fix(t, pos)) } // 30 m/s
+        return d to rides
+    }
+
+    @Test
+    fun `switching off mid-ride queues the ride up to the last fix`() {
+        val (d, rides) = ride(60) // 18 km
+        assertTrue(rides.isEmpty() && d.moving)
+        d.flush()
+        assertEquals(1, rides.size)
+        assertEquals(18_000.0, distanceM(rides[0].start, rides[0].end), 400.0)
+        assertEquals(t0.plusSeconds(3 * 10 + 60 * 10), rides[0].end.time)
+        assertTrue(!d.moving)
+    }
+
+    @Test
+    fun `a flushed ride under the minimum distance is dropped like any other`() {
+        val (d, rides) = ride(5) // 1.5 km
+        d.flush()
+        assertTrue(rides.isEmpty())
+    }
+
+    @Test
+    fun `flush without a ride does nothing, twice is the same as once`() {
+        val (d, rides) = ride(60)
+        d.flush(); d.flush()
+        assertEquals(1, rides.size)
+        TripDetector { throw AssertionError() }.flush()
+    }
+}
