@@ -1,0 +1,51 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write # create the GitHub Release
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      DELAYD_REQUIRE_RELEASE_KEY: "true"
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: gradle/actions/setup-gradle@v6
+
+      - name: Tag must match VERSION_NAME
+        run: |
+          name=$(grep '^VERSION_NAME=' gradle.properties | cut -d= -f2)
+          [ "v$name" = "$GITHUB_REF_NAME" ] || { echo "Tag $GITHUB_REF_NAME != v$name (gradle.properties)"; exit 1; }
+
+      - name: Decode keystore
+        env:
+          KEYSTORE_BASE64: ${{ secrets.DELAYD_KEYSTORE_BASE64 }}
+        run: |
+          [ -n "$KEYSTORE_BASE64" ] || { echo "Secret DELAYD_KEYSTORE_BASE64 is missing"; exit 1; }
+          echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.jks"
+
+      - name: Test, build signed APK and AAB
+        env:
+          DELAYD_KEYSTORE_FILE: ${{ runner.temp }}/release.jks
+          DELAYD_KEYSTORE_PASSWORD: ${{ secrets.DELAYD_KEYSTORE_PASSWORD }}
+          DELAYD_KEY_ALIAS: ${{ secrets.DELAYD_KEY_ALIAS }}
+          DELAYD_KEY_PASSWORD: ${{ secrets.DELAYD_KEY_PASSWORD }}
+        run: ./gradlew testDebugUnitTest assembleRelease bundleRelease
+
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp app/build/outputs/apk/release/app-release.apk "delayd-$GITHUB_REF_NAME.apk"
+          cp app/build/outputs/bundle/release/app-release.aab "delayd-$GITHUB_REF_NAME.aab"
+          cp app/build/outputs/mapping/release/mapping.txt "delayd-$GITHUB_REF_NAME-mapping.txt"
+          gh release create "$GITHUB_REF_NAME" --title "Delayd ${GITHUB_REF_NAME#v}" --generate-notes \
+            "delayd-$GITHUB_REF_NAME.apk" "delayd-$GITHUB_REF_NAME.aab" "delayd-$GITHUB_REF_NAME-mapping.txt"
