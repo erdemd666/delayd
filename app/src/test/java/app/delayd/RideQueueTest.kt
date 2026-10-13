@@ -180,4 +180,25 @@ class RideQueueTest {
         assertEquals(listOf(trip), trips)
         assertEquals(1, q.size) // the bad ride waits for a retry, it is not lost at once
     }
+
+    @Test
+    fun `a ride queued as detection stops is looked up later by a fresh queue and the job is armed for its due time`() {
+        now = T0
+        val fixes = (0..60).map { Fix(T0.plusSeconds(it * 10L), 52.0 + it * 300 / 111_195.0, 13.0) }
+        val d = TripDetector { queue().add(it) }
+        fixes.forEach(d::add)
+        d.flush() // switching detection off mid-ride
+        assertEquals(1, queue().size)
+        val due = queue().next()!!
+        assertEquals(fixes[59].time.plus(RideQueue.SETTLE), due) // the newest fix was still unconfirmed
+        now = due // the service is gone; the job fires and drains
+        assertEquals(listOf(trip), queue().run().first)
+        assertEquals(0, queue().size)
+    }
+
+    @Test
+    fun `the wake-up is never sooner than 30 seconds`() {
+        assertEquals(Duration.ofSeconds(30), Pipeline.wait(T0, T0.plusSeconds(100)))
+        assertEquals(Duration.ofMinutes(5), Pipeline.wait(T0.plusSeconds(300), T0))
+    }
 }

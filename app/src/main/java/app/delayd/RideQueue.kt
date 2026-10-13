@@ -28,6 +28,10 @@ class RideQueue(private val file: File, private val clock: () -> Instant = Insta
         save(items + Item(ride, 0, ride.end.time.plus(SETTLE)))
     }
 
+    /** When the first waiting ride is due, null if none waits. */
+    @Synchronized
+    fun next(): Instant? = items.minOfOrNull { it.notBefore }
+
     /**
      * Looks up every journey that is due and hands the trips to [out]. Returns when to call again, or null if nothing waits.
      * [inProgress] is the start of a ride happening right now; a journey it may continue is held back.

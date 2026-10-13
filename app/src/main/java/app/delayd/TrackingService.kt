@@ -98,6 +98,8 @@ class TrackingService : Service(), LocationListener {
         lm.removeUpdates(this)
         stopping = true
         detector.flush() // a ride in progress is closed at the last fix, not lost
+        inProgress = null
+        Pipeline.arm(this) // nobody drains once we are gone, so the job does
         main.removeCallbacksAndMessages(null)
         if (foreground) {
             // only a deliberate stop gets here; a kill by the system or an update skips onDestroy, so we come back
@@ -132,6 +134,7 @@ class TrackingService : Service(), LocationListener {
         if (!foreground) return
         val plan = DutyCycle.plan(detector.moving, SystemClock.elapsedRealtime() < watchUntil, motion != null)
         riding.value = detector.moving
+        inProgress = detector.current
         val provider = DutyCycle.provider(plan.gps, lm.isProviderEnabled(LocationManager.GPS_PROVIDER),
             lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER))
         if (current == plan to provider) return
@@ -190,6 +193,8 @@ class TrackingService : Service(), LocationListener {
         val running = MutableStateFlow(false)
         /** True while a ride is in progress. */
         val riding = MutableStateFlow(false)
+        /** Start of the ride in progress; a journey it may continue is held back from the lookup, also when the app drains. */
+        @Volatile var inProgress: Fix? = null
 
         /** The user had detection on and the system, not the user, stopped it (reboot, update). */
         fun wanted(c: Context) = c.getSharedPreferences(PREFS, MODE_PRIVATE).getBoolean("detectionOn", false)
