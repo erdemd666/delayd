@@ -39,6 +39,7 @@ android {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
+            vcsInfo.include = false // no git info in the APK, keeps builds reproducible
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             signingConfig = if (releaseStoreFile != null) signingConfigs.getByName("release") else {
                 // Local smoke builds only. A tag build without a real key must never produce an artifact.
