@@ -6,6 +6,7 @@
             android:exported="false">
             <intent-filter>
                 <action android:name="app.delayd.debug.SIMULATE_RIDE" />
+                <action android:name="app.delayd.debug.REPLAY_REAL" />
             </intent-filter>
         </receiver>
     </application>

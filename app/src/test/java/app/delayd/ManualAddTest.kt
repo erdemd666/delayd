@@ -19,7 +19,7 @@ class ManualAddTest {
     fun `geocode response gives stations with city`() {
         val places = Transitous.parsePlaces(res("geocode-berlin-hbf.json"))
         assertEquals(3, places.size)
-        assertEquals(Place("Berlin Hbf", "at-Railway-Current-Reference-Data-2026_de:11000:900003200:1:51", "Berlin"), places.first())
+        assertEquals(Place("Berlin Hbf", "at-Railway-Current-Reference-Data-2026_de:11000:900003200:1:51", "Berlin"), places.first().copy(lat = 0.0, lon = 0.0))
     }
 
     @Test

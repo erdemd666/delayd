@@ -56,7 +56,7 @@ data class Departure(
 )
 
 /** A station from the geocoder; [area] (city/region) tells same-named stops apart. */
-data class Place(val name: String, val id: String, val area: String = "")
+data class Place(val name: String, val id: String, val area: String = "", val lat: Double = 0.0, val lon: Double = 0.0)
 
 /** HTTP trouble worth retrying later; [retryAfterSec] is the server's own hint (429/503). */
 class LookupException(message: String, val retryAfterSec: Long? = null) : IOException(message)
@@ -119,7 +119,8 @@ object Transitous {
         val name = o.optString("name").takeIf { it.isNotEmpty() } ?: return@mapNotNull null
         val id = o.optString("id").takeIf { it.isNotEmpty() } ?: return@mapNotNull null
         val areas = o.optJSONArray("areas")?.objects().orEmpty()
-        Place(name, id, areas.firstOrNull { it.optBoolean("default") && it.optInt("adminLevel") >= 4 }?.optString("name").orEmpty())
+        Place(name, id, areas.firstOrNull { it.optBoolean("default") && it.optInt("adminLevel") >= 4 }?.optString("name").orEmpty(),
+            o.optDouble("lat", 0.0), o.optDouble("lon", 0.0))
     }
 
     /** Throws [JSONException] when the response isn't a stop-time list; single malformed entries are skipped. */

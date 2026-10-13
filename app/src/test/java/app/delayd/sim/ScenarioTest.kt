@@ -191,21 +191,23 @@ class ScenarioTest {
     }
 
     @Test fun carFromStationToStation() {
-        lookalikes("Car, Hbf to Potsdam Hbf at 108 km/h") { at ->
+        val wrong = lookalikes("Car, Hbf to Potsdam Hbf at 108 km/h") { at ->
             carDrive(hbf.offset(100.0, 100.0), listOf(Pt(52.49, 13.26), Pt(52.43, 13.17), potsdam.offset(150.0, 50.0)), at)
         }
+        assertTrue("$wrong of 16", wrong <= 4) // a known limit: a car that keeps a train's pace on its route cannot be told apart
     }
 
     // 10. a bus on the main road next to the S-Bahn: 480 m between stops, 45 km/h bursts, 40 s at stops and lights (~19 km/h average)
     @Test fun cityBus() {
         val path = (1..10).map { hbf.lerp(ostbahnhof, it / 10.0).offset(150.0, 0.0) }
-        lookalikes("City bus Hbf to Ostbahnhof, ~19 km/h") { at ->
+        val wrong = lookalikes("City bus Hbf to Ostbahnhof, ~19 km/h") { at ->
             TruthBuilder(at, hbf.offset(150.0, 250.0)).apply {
                 stand(4 * 60)
                 path.forEach { move(it, (here.distTo(it) / 12.5 + 12.5).toInt(), accel = 1.0); stand(40) }
                 stand(40 * 60)
             }.build()
         }
+        assertTrue("$wrong of 16", wrong <= 8) // a known limit: a bus within ~3 min of the S-Bahn's timeline is indistinguishable
     }
 
     // 11. cyclist at 25 km/h and a brisk walker: no ride, and no GPS
@@ -242,14 +244,19 @@ class ScenarioTest {
     @Test fun deutschlandticketMonth() {
         val delays = List(40) { i -> when (i) { 6 -> 65L; 19 -> 80L; 31 -> 130L; else -> (i % 7).toLong() } }
         val zone = ZoneId.of("Europe/Berlin")
+        var gpsMinutes = 0.0
         val trips = delays.mapIndexed { i, delay ->
             val day = Instant.parse("2026-09-01T06:00:00Z").plus(Duration.ofDays(i % 28L)).plus(Duration.ofHours(i / 28 * 2L))
             val sched = lineTimetable(day, 30, S_V, S_A, "Berlin Hbf" to hbf, "Alexanderplatz" to alex, "Ostbahnhof" to ostbahnhof)
             val late = sched.delayedFrom(0, delay)
             val run = runPhone(commute(late, vLine = S_V, accel = S_A), PhoneCfg(seed = i.toLong(), stations = ALL_STATIONS), board(hbf, train("S7", late, sched.map { it.arrive })))
+            gpsMinutes += run.gpsMin
             assertEquals("ride $i: ${run.trips}", 1, run.trips.size)
             run.trips.single().second
         }
+        Report.rows.removeAll { it.name.startsWith("Deutschlandticket") }
+        Report.rows += Row("Deutschlandticket month: 40 rides, 3 over 60 min", 40, null, null, listOf("40 trips; ${trips.count { it.delayMin >= 60 }} claimable"), gpsMinutes, 0.0,
+            "monthly pool ${Compensation.dTicketMonthCt(trips.map { it.delayMin })} ct")
         assertEquals(delays, trips.map { it.delayMin })
         assertEquals(450, Compensation.dTicketMonthCt(trips.map { it.delayMin }))
         val claim = Compensation.monthlyClaim(trips, Instant.parse("2026-10-02T08:00:00Z"), zone, null)
