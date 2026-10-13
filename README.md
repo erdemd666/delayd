@@ -1,8 +1,21 @@
 # Delayd
 
+[![CI](https://github.com/erdem61/delayd/actions/workflows/ci.yml/badge.svg)](https://github.com/erdem61/delayd/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+![Android 8.0+](https://img.shields.io/badge/Android-8.0%2B-3DDC84)
+
 **Your train was late. Your money comes back without you doing anything.**
 
-In Germany, a train arriving 60+ minutes late gets you 25 % of the fare back, and 120+ minutes gets you 50 %. With a Deutschlandticket you get 1.50 € per case. Most people never claim. Delayd notices your train rides by itself, checks them against live data and tells you when you're owed money.
+In Germany, a train arriving 60+ minutes late gets you 25 % of the fare back, and 120+ minutes gets you 50 %. With a Deutschlandticket you get 1.50 € per case. Most people never claim. Delayd notices your train rides by itself, checks them against live data and tells you when you're owed money, then prepares the claim.
+
+Free and open source. No accounts, no ads, no analytics, no Google Play Services, no backend. Your location stays on your phone.
+
+## Screenshots
+
+<!-- Produced by the UI workstream; filenames are placeholders until then. -->
+| Home | Trip detail | Claim |
+|---|---|---|
+| ![Home](docs/screenshots/home.png) | ![Trip detail](docs/screenshots/trip-detail.png) | ![Claim](docs/screenshots/claim.png) |
 
 ## How it works
 
@@ -21,35 +34,53 @@ GPS / network fixes ──► TripDetector ──► Ride(start, end) ──► 
 | Privacy: location history stays on the device, the API only sees one station query | whole app |
 | Domain rules: thresholds, 4 € minimum, Deutschlandticket cap | [`Compensation.kt`](app/src/main/java/app/delayd/Compensation.kt) |
 
-No accounts, no backend, no Google Play Services. It uses Kotlin, Jetpack Compose and the platform `LocationManager`.
+Kotlin, Jetpack Compose, Material 3, platform `LocationManager`. Single `app` module, minSdk 26.
+
+## Privacy
+
+- Location is read and processed on the device only. No location history is uploaded.
+- The only network request goes to `api.transitous.org` after a ride: the coordinate where the ride started (about a 500 m search radius) and the time.
+- No accounts, analytics, crash reporting, ads or third-party SDKs.
+- Export and delete your data in the app.
+
+Full text: [Privacy policy](docs/privacy-policy.md) (EN + DE).
 
 ## Build & test
 
-Requires Android Studio (or JDK 17+ and the Android SDK).
+Requires JDK 17 and the Android SDK (or Android Studio).
 
 ```bash
 ./gradlew testDebugUnitTest   # detector, matching on a real API response, compensation rules
+./gradlew lintDebug
 ./gradlew installDebug
+./gradlew assembleRelease     # signed with the DEBUG key unless a release keystore is configured (local smoke test only)
 ```
 
-**Demo without riding a train:** the Android emulator can play back a GPX route. Go to *Extended controls → Location → Routes*. The unit tests use a real Berlin Hbf departure board ([fixture](app/src/test/resources/departures-berlin-hbf.json)).
+Release signing, versioning and publishing: [docs/RELEASE.md](docs/RELEASE.md). Contributing: [CONTRIBUTING.md](CONTRIBUTING.md).
 
-## Data
+**Demo without riding a train:** the Android emulator can play back a GPX route (*Extended controls → Location → Routes*). The unit tests use a real Berlin Hbf departure board ([fixture](app/src/test/resources/departures-berlin-hbf.json)).
 
-Train data comes from [Transitous](https://transitous.org) (MOTIS, open European transit data incl. DB realtime), [sources](https://transitous.org/sources/), © OpenStreetMap contributors. The Transitous API is for open-source, non-commercial use only. A commercial version would self-host MOTIS or use the DB API Marketplace, and only `Transitous.kt` changes.
+## Data credits
+
+Train data comes from [Transitous](https://transitous.org) (MOTIS, open European transit data incl. realtime), see the [list of sources](https://transitous.org/sources/). Map and place data © [OpenStreetMap contributors](https://www.openstreetmap.org/copyright). The Transitous API is for open-source, non-commercial use only. A commercial version would self-host MOTIS or use the DB API Marketplace, and only `Transitous.kt` changes.
 
 ## Known limits
 
-- A signal stop longer than 10 min splits a ride in two.
+- Germany only. Delayd prepares your claim, it does not file it: DB's claim form needs a login.
 - Underground stations without GPS can blur the arrival time.
-- DB's claim form needs a login, so Delayd prepares the facts for you to paste instead of filing the claim.
-- Rides found while offline are retried for 3 minutes and then dropped.
-- Detection stops after a reboot until you open the app again.
 - Since June 2023, delays caused by extraordinary circumstances (storms, strikes by third parties) may not be compensated.
+- See the [CHANGELOG](CHANGELOG.md) for what each release covers.
 
 ## Roadmap
 
-- [ ] Persist pending rides, restart detection after reboot
-- [ ] Merge rides split by long signal stops, transfers on one ticket
+- [ ] Manual add when detection missed a ride (station and train search)
 - [ ] Ticket QR scan for the fare
 - [ ] Other countries: AT (ÖBB), CH, NL, IT
+
+## Disclaimer
+
+Delayd is an independent project and is not affiliated with Deutsche Bahn AG. Compensation amounts are estimates; the railway company decides on every claim.
+
+## License
+
+[MIT](LICENSE) © 2026 erdem61
