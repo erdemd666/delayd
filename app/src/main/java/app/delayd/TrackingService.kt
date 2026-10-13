@@ -51,6 +51,7 @@ class TrackingService : Service(), LocationListener {
     override fun onDestroy() {
         lm.removeUpdates(this)
         running.value = false
+        riding.value = false
         super.onDestroy()
     }
 
@@ -69,6 +70,7 @@ class TrackingService : Service(), LocationListener {
     @SuppressLint("MissingPermission") // MainActivity only starts us after the grant
     private fun updateRate() {
         val gps = detector.moving
+        riding.value = gps
         if (gps == gpsMode) return
         gpsMode = gps
         lm.removeUpdates(this)
@@ -102,7 +104,7 @@ class TrackingService : Service(), LocationListener {
 
     private fun notifyDelay(trip: Trip) {
         val n = notification(CH_DELAY, "${trip.train} was ${trip.delayMin} min late",
-            "${trip.from} → ${trip.to}. You can claim compensation.")
+            "${trip.from} â†’ ${trip.to}. You can claim compensation.")
         getSystemService(NotificationManager::class.java).notify(trip.hashCode(), n)
     }
 
@@ -121,6 +123,9 @@ class TrackingService : Service(), LocationListener {
         private const val TAG = "Delayd"
         private const val CH_TRACK = "tracking"
         private const val CH_DELAY = "delays"
+        const val EXTRA_TRIP_ID = "tripId"
         val running = MutableStateFlow(false)
+        /** True while a ride is in progress. */
+        val riding = MutableStateFlow(false)
     }
 }
