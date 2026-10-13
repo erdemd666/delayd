@@ -1,5 +1,9 @@
 package app.delayd
 
+import java.time.Instant
+import java.time.YearMonth
+import java.time.ZoneId
+
 /**
  * German rail passenger rights (bahn.de Fahrgastrechte), amounts in euro cents.
  * Single ticket: 25 % of the fare from 60 min delay at the destination, 50 % from 120 min.
@@ -24,4 +28,14 @@ object Compensation {
     fun payable(ct: Int) = ct >= MIN_PAYOUT_CT
 
     fun format(ct: Int) = "%d,%02d €".format(ct / 100, ct % 100)
+
+    /** Last month's open Deutschlandticket cases once they reach the payout minimum, unless [notified] (a YearMonth string) already covers it. */
+    fun monthlyClaim(trips: List<Trip>, now: Instant, zone: ZoneId, notified: String?): Pair<YearMonth, Int>? {
+        val month = YearMonth.from(now.atZone(zone)).minusMonths(1)
+        if (month.toString() == notified) return null
+        val ct = dTicketMonthCt(trips.filter {
+            it.status == ClaimStatus.OPEN && YearMonth.from(it.scheduledArrival.atZone(zone)) == month
+        }.map { it.delayMin })
+        return if (payable(ct)) month to ct else null
+    }
 }
