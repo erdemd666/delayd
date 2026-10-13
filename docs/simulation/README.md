@@ -10,7 +10,7 @@ Realistic rides without a train. Details and numbers: [results.md](results.md), 
 - JVM: `DELAYD_LIVE=1 DELAYD_STATIONS="Berlin Hbf;Hamburg Hbf" ./gradlew testDebugUnitTest --tests "*LiveReplayTest*"`
   (3 requests per station; skipped without `DELAYD_LIVE`). Output: `app/build/sim/live.md`.
 - Emulator (debug build only):
-  `adb shell am broadcast -a app.delayd.debug.REPLAY_REAL -p app.delayd --es station "Berlin Hbf"`, then `adb logcat -s DelaydReplay`.
+  `adb shell am broadcast -a app.delayd.debug.REPLAY_REAL -p com.erdem6.delayd --es station "Berlin Hbf"`, then `adb logcat -s DelaydReplay`.
   The trip appears in the app (and notifies from 60 min delay).
 
 ## GPX routes for the emulator

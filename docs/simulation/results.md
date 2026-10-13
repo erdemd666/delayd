@@ -64,9 +64,9 @@ Emulator: see the section at the end (filled when the emulator is free).
 - Vehicles that mirror a train's timeline (bus beside the S-Bahn) can still match; realtime data is required for the check.
 - A change shorter than about 3 min is one ride; it matches no single train, so `Journeys` splits it at its longest standstill and matches two legs (Workstream H). The standstill must be longer than any other stop on the way (a signal stop longer than the change would be chosen instead).
 
-## Emulator replay (coordinator, 2026-10-13)
+## Emulator replay (2026-10-13)
 
-`adb shell am broadcast -a app.delayd.debug.REPLAY_REAL -p app.delayd --es station "Berlin Hbf"` on the merged main debug build. The debug receiver is now exported, but in debug builds only, so adb can reach it.
+`adb shell am broadcast -a app.delayd.debug.REPLAY_REAL -p com.erdem6.delayd --es station "Berlin Hbf"` on the merged main debug build. The debug receiver is now exported, but in debug builds only, so adb can reach it.
 
 | Real train | Detector output | Result after the 30 min connection hold |
 |---|---|---|

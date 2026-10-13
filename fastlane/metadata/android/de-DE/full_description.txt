@@ -18,7 +18,6 @@ Schalte die Erkennung einmal ein. Delayd erkennt, wenn du in Deutschland Zug fä
 • Daten jederzeit in der App exportieren oder löschen
 
 <b>Kostenlos und Open Source</b>
-Delayd ist freie Software unter der MIT-Lizenz. Quellcode: github.com/erdem61/delayd
 
 <b>Gut zu wissen</b>
 • Zuerst für Deutschland, weitere Länder stehen auf der Roadmap.

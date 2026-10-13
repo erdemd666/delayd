@@ -6,7 +6,7 @@ import android.content.Intent
 import app.delayd.DebugHooks
 import kotlin.concurrent.thread
 
-/** adb shell am broadcast -a app.delayd.debug.REPLAY_REAL -p app.delayd --es station "Berlin Hbf" */
+/** adb shell am broadcast -a app.delayd.debug.REPLAY_REAL -p com.erdem6.delayd --es station "Berlin Hbf" */
 class DebugReceiver : BroadcastReceiver() {
     private companion object { const val REPLAY_REAL = "app.delayd.debug.REPLAY_REAL" }
 

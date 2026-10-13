@@ -161,7 +161,6 @@
     <string name="privacy_policy">Privacy policy</string>
     <string name="licenses">Open-source licenses</string>
     <string name="licenses_body">Delayd is open source under the MIT license.\n\nBuilt with AndroidX, Jetpack Compose and Material 3 (Apache License 2.0).\n\nTimetable data: Transitous (transitous.org/sources). Map data © OpenStreetMap contributors (ODbL).\n\nDelayd is an independent app and is not affiliated with Deutsche Bahn.</string>
-    <string name="source_code">Source code</string>
     <string name="attribution">Data sources: Transitous and OpenStreetMap</string>
     <string name="version">Version %1$s</string>
 

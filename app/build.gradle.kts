@@ -18,7 +18,7 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "app.delayd"
+        applicationId = "com.erdem6.delayd"
         minSdk = 26
         targetSdk = 36
         // single source of truth in gradle.properties; the version code is a plain monotonic integer

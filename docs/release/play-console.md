@@ -46,7 +46,7 @@ Notes for the reviewer-facing reasoning:
 
 ### Privacy policy URL
 
-`https://erdem61.github.io/delayd/privacy-policy` (TODO: after enabling GitHub Pages on `/docs`, confirm the URL). The page must be public and not a PDF.
+`https://erdem6.com/delayd/privacy`: upload `docs/privacy-policy.html` there (it is the same text as `docs/privacy-policy.md`). The page must be public and not a PDF. Developer contact for the store listing: hi@erdem6.com, website https://erdem6.com.
 
 ## 2. Foreground service: type `location`
 

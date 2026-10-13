@@ -13,19 +13,14 @@
 - Nothing has been pushed. There is no remote yet.
 
 ## Owner to-dos before publishing
-1. Fill in the TODOs in [docs/privacy-policy.md](docs/privacy-policy.md): name, postal address (a legal requirement in Germany) and contact email.
-2. Create the GitHub repo `erdem61/delayd`, push, and enable Pages on `/docs` so the privacy policy has a URL.
-3. Create the release keystore and back it up. Add the 4 GitHub secrets. Steps: [docs/RELEASE.md](docs/RELEASE.md).
-4. Play Console:
-   - App content answers from [docs/release/play-console.md](docs/release/play-console.md).
-   - Data safety now includes the manual-add station search text.
-   - Record the foreground-service demo video.
-5. Real-device checks the emulator can't give:
-   - one real train ride;
-   - a day of battery measurement;
-   - a TalkBack pass;
-   - a contrast check.
-6. Tag `v1.0.0`. CI builds the signed APK + AAB. Upload to the internal testing track, then submit to F-Droid ([docs/release/fdroid.md](docs/release/fdroid.md)).
+Order chosen by the owner: stores first, GitHub last (after the legal side is settled).
+1. Put the legal name and postal address into the TODO lines of [docs/privacy-policy.md](docs/privacy-policy.md) (Impressumspflicht), then regenerate `docs/privacy-policy.html`. Contact is already `hi@erdem6.com`.
+2. Upload `docs/privacy-policy.html` to `https://erdem6.com/delayd/privacy`. The app's Settings link points there.
+3. Create the release keystore and back it up ([docs/RELEASE.md](docs/RELEASE.md)). Without GitHub yet, build locally with `keystore.properties`: `./gradlew bundleRelease`.
+4. Play Console: app id `com.erdem6.delayd`, App content answers from [docs/release/play-console.md](docs/release/play-console.md) (Data safety includes the manual-add station search text), record the foreground-service demo video, upload the AAB to internal testing.
+5. Real-device checks: one real train ride, a day of battery, TalkBack, contrast.
+6. Transitous only allows open-source use: publish the GitHub repo by the time the app is public, then restore the "Source code" link in Settings and the source line in the store descriptions.
+7. Apple App Store: there is no iOS app yet. It needs a separate build.
 
 ## Simulation
 - Real-world scenario suite + live replay: [docs/simulation/results.md](docs/simulation/results.md); GPX demo routes in docs/simulation/gpx/.
@@ -39,5 +34,5 @@
 ## Environment notes
 - JAVA_HOME = `C:\Program Files\Android\Android Studio\jbr`.
 - `local.properties` must be exactly `sdk.dir=C\:/Users/erdem/AppData/Local/Android/Sdk` with an LF line ending, or lint fails. Run `clean` after changing it.
-- The session's worktree isolation fails, because the home folder is also a git repo. Create worktrees by hand under `../delayd-worktrees/`.
-- The emulator `Medium_Phone_API_36.1` also has the owner's other apps on it. Agents must only touch `app.delayd`.
+- Parallel work uses git worktrees under `../delayd-worktrees/` (the home folder is also a git repo, so create them by hand).
+- The emulator `Medium_Phone_API_36.1` also has the owner's other apps on it. Only touch `com.erdem6.delayd` there.

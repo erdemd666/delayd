@@ -70,7 +70,7 @@ object Transitous {
     private const val API = "https://api.transitous.org/api"
     private const val BASE = "$API/v6/stoptimes"
     private const val RAIL = "HIGHSPEED_RAIL,LONG_DISTANCE,NIGHT_RAIL,REGIONAL_RAIL,SUBURBAN"
-    private const val USER_AGENT = "Delayd/${BuildConfig.VERSION_NAME} (github.com/erdem61/delayd)"
+    private const val USER_AGENT = "Delayd/${BuildConfig.VERSION_NAME} (+https://erdem6.com; hi@erdem6.com)"
     private const val STOP_RADIUS_M = 800.0
     private const val M_PER_DEG = 111_195.0
     private const val OFF_ROUTE_M = 2_500.0

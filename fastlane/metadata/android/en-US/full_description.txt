@@ -18,7 +18,6 @@ Switch detection on once. Delayd recognises when you ride a train in Germany, fi
 • Export or delete your data any time in the app
 
 <b>Free and open source</b>
-Delayd is free software under the MIT license. Source code: github.com/erdem61/delayd
 
 <b>Good to know</b>
 • Germany first. Other countries are on the roadmap.

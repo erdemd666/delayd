@@ -28,8 +28,7 @@ import app.delayd.TrackingService
 import app.delayd.Trip
 import app.delayd.TripStore
 
-const val PRIVACY_URL = "https://github.com/erdem61/delayd/blob/main/docs/privacy-policy.md"
-const val SOURCE_URL = "https://github.com/erdem61/delayd"
+const val PRIVACY_URL = "https://erdem6.com/delayd/privacy"
 
 @Composable
 fun SettingsScreen(prefs: Prefs, trips: List<Trip>, onBack: () -> Unit) {
@@ -137,7 +136,6 @@ fun SettingsContent(
             Panel(padding = Space.s) {
                 LinkRow(R.string.privacy_policy) { uri.openUri(PRIVACY_URL) }
                 LinkRow(R.string.licenses) { licenses = true }
-                LinkRow(R.string.source_code) { uri.openUri(SOURCE_URL) }
                 LinkRow(R.string.attribution) { uri.openUri(TRANSITOUS_SOURCES) }
                 Text(stringResource(R.string.version, version), Modifier.padding(Space.s), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }

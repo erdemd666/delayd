@@ -6,12 +6,13 @@ title: Delayd Privacy Policy / Datenschutzerklärung
 
 *Deutsche Fassung weiter unten.* Last updated: 2026-10-13
 
-Delayd is a free, open-source Android app (MIT license, source: <https://github.com/erdem61/delayd>). It is built so that its developer cannot see your data: there is no account, no backend and no tracking.
+Delayd is a free Android app by erdem6.com. It is built so that its developer cannot see your data: there is no account, no backend and no tracking.
 
 ## Controller
 
-erdem61 (individual developer). TODO: full name and postal address of the owner (a legal requirement in Germany).
-Contact for privacy questions: **privacy@TODO-your-domain.example** (TODO: replace with a real address before publishing).
+erdem6.com, <https://erdem6.com>
+TODO: full legal name and postal address of the owner (a legal requirement in Germany).
+Contact for privacy questions: **hi@erdem6.com**
 
 ## What the app does with your data
 
@@ -75,12 +76,13 @@ Delayd is an independent project and is not affiliated with Deutsche Bahn AG. Co
 
 Stand: 13.10.2026
 
-Delayd ist eine kostenlose Open-Source-App für Android (MIT-Lizenz, Quellcode: <https://github.com/erdem61/delayd>). Sie ist so gebaut, dass der Entwickler Ihre Daten gar nicht sehen kann: Es gibt kein Konto, kein Backend und kein Tracking.
+Delayd ist eine kostenlose Android-App von erdem6.com. Sie ist so gebaut, dass der Entwickler Ihre Daten gar nicht sehen kann: Es gibt kein Konto, kein Backend und kein Tracking.
 
 ## Verantwortlicher
 
-erdem61 (Einzelentwickler). TODO: vollständiger Name und Anschrift des Betreibers (Impressumspflicht).
-Datenschutzanfragen: **privacy@TODO-your-domain.example** (TODO: vor der Veröffentlichung durch eine echte Adresse ersetzen).
+erdem6.com, <https://erdem6.com>
+TODO: vollständiger Name und Anschrift des Betreibers (Impressumspflicht).
+Datenschutzanfragen: **hi@erdem6.com**
 
 ## Welche Daten die App verarbeitet
 

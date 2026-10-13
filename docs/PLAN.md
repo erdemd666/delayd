@@ -1,6 +1,6 @@
 # Delayd: path to v1.0 (release-ready)
 
-Every agent working on this repo reads this file first. It holds the product decisions, the contracts between workstreams and who owns which files.
+Every contributor reads this file first. It holds the product decisions, the contracts between workstreams and who owns which files.
 
 ## Product decisions (fixed, don't re-litigate)
 
@@ -64,7 +64,7 @@ Nobody edits a file outside their area. If you need a change there, write it und
 | **B: UI/UX** | `MainActivity.kt`, new package `app.delayd.ui` (all screens, theme, components), `res/` (values, values-de, drawable, mipmap, xml), the `<application>`/`<activity>` attributes in the manifest that concern the theme, icon and label only (state these in the report, A merges manifest) |
 | **C: Release engineering** | root + app Gradle files **except the `dependencies {}` block**, `proguard-rules.pro`, `.github/`, `docs/` (except this file), `fastlane/`, `LICENSE`, `README.md`, `CHANGELOG.md`, `CONTRIBUTING.md` |
 
-Any workstream may add lines to `dependencies {}` in `app/build.gradle.kts` (the coordinator resolves conflicts).
+Any workstream may add lines to `dependencies {}` in `app/build.gradle.kts` (the maintainer resolves conflicts).
 
 ## Workstream A: Core engine
 
@@ -123,7 +123,7 @@ Professional, calm, trustworthy design: a finance-app feel (money you get back),
    - On push/PR: unit tests, lint, debug build.
    - On tag `v*`: signed AAB + APK attached to a GitHub Release (secrets documented).
    - Cache Gradle.
-3. **Lint:** lint config, no new warnings in C's files. Report others' lint issues to the coordinator.
+3. **Lint:** lint config, no new warnings in C's files. Report others' lint issues to the maintainer.
 4. **Legal & store:**
    - `LICENSE` (MIT, © 2026 erdem61).
    - Privacy policy (EN + DE) in `docs/privacy-policy.md`, GitHub-Pages-ready.
@@ -132,20 +132,20 @@ Professional, calm, trustworthy design: a finance-app feel (money you get back),
    - F-Droid readiness checklist.
 5. **Docs:** a README fit for GitHub (badges, what/why, how it works, build, privacy, data credits, screenshot placeholders), `CHANGELOG.md`, `CONTRIBUTING.md`, `docs/RELEASE.md` (step-by-step: create keystore → tag → upload to Play internal track → F-Droid submission).
 
-## Phase 2 (after the merge, by the coordinator)
+## Phase 2 (after the merge, by the maintainer)
 
-- **D: Manual add:** search a station and a train when detection missed a ride (Transitous geocode + stoptimes). Full stack, one agent.
+- **D: Manual add:** search a station and a train when detection missed a ride (Transitous geocode + stoptimes). Full stack, one contributor.
 - **E: QA & polish:**
   - Code review across the merged app and fixing what it finds.
   - Run the debug simulator end-to-end on the emulator.
   - Accessibility pass, final screenshots, release build smoke test.
   - Verify every item here is done or explicitly deferred in `CHANGELOG.md`.
 
-## Rules for every agent
+## Rules for contributors
 
 - Read the code you touch first. Match the existing style (compact Kotlin, comments only for the *why*).
 - Build environment: `JAVA_HOME="C:\Program Files\Android\Android Studio\jbr"`. Create `local.properties` with `sdk.dir=C:/Users/erdem/AppData/Local/Android/Sdk` in your worktree (it is gitignored). Run `./gradlew testDebugUnitTest assembleDebug` before you finish. It must pass.
-- Commit your work on your branch in small logical commits. Never push and never touch remotes.
+- Commit your work on your branch in small logical commits,. Never push and never touch remotes.
 - Final report:
   - what you did;
   - what you verified, and how;

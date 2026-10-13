@@ -34,14 +34,15 @@ Optional: reproducible builds with the upstream signature. Keep the Play/GitHub 
 
 ## Draft metadata
 
-For `metadata/app.delayd.yml` in a merge request to <https://gitlab.com/fdroid/fdroiddata>. Replace `erdem61/delayd` if the repository path differs. Run `fdroid lint app.delayd` and `fdroid build -v -l app.delayd` locally (see the fdroiddata `CONTRIBUTING.md`) before opening the MR.
+For `metadata/com.erdem6.delayd.yml` in a merge request to <https://gitlab.com/fdroid/fdroiddata>. Replace `erdem61/delayd` if the repository path differs. Run `fdroid lint app.delayd` and `fdroid build -v -l app.delayd` locally (see the fdroiddata `CONTRIBUTING.md`) before opening the MR.
 
 ```yaml
 Categories:
   - Navigation
 License: MIT
-AuthorName: erdem61
-WebSite: https://github.com/erdem61/delayd
+AuthorName: erdem6.com
+AuthorEmail: hi@erdem6.com
+WebSite: https://erdem6.com
 SourceCode: https://github.com/erdem61/delayd
 IssueTracker: https://github.com/erdem61/delayd/issues
 Changelog: https://github.com/erdem61/delayd/blob/HEAD/CHANGELOG.md

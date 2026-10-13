@@ -83,7 +83,7 @@ Delayd is an independent project and is not affiliated with Deutsche Bahn AG. Co
 
 ## License
 
-[MIT](LICENSE) © 2026 erdem61
+[MIT](LICENSE) © 2026 erdem6.com
 
 ---
 

@@ -48,7 +48,7 @@ First public release.
 - Germany only; claims are prepared, not filed (DB's form needs a login).
 - Battery drain is estimated from published figures, not measured (`docs/decisions/battery.md`).
 - Ticket QR scan, other countries and per-trip "separate ticket" for connections are not built; see the roadmap in the README.
-- The privacy policy still has owner TODOs (name, address, contact) that must be filled in before publishing.
+- The privacy policy still needs the owner's legal name and postal address before publishing (contact is hi@erdem6.com).
 
 [Unreleased]: https://github.com/erdem61/delayd/compare/v1.0.0...HEAD
 [1.0.0]: https://github.com/erdem61/delayd/releases/tag/v1.0.0

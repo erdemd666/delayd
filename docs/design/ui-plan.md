@@ -119,4 +119,4 @@ Plain, specific, a little warm; no exclamation marks, no legal jargon, no "Oops"
 
 - A: put `EXTRA_TRIP_ID` into the delay notification intent; use `R.drawable.ic_stat_delayd` as small icon (`ic_train` stays valid and is now white-on-transparent).
 - A: `Compensation.format` is not locale-aware; UI formats money itself and does not call it.
-- Coordinator: wire the debug simulator at `DebugSlot` in `ui/DebugSlot.kt`.
+- Maintainer: wire the debug simulator at `DebugSlot` in `ui/DebugSlot.kt`.
