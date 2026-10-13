@@ -1,8 +1,17 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.compose")
 }
+
+// Release signing: keystore.properties (gitignored) or DELAYD_* env vars. See docs/RELEASE.md.
+val keystoreProps = Properties().apply {
+    rootProject.file("keystore.properties").takeIf { it.exists() }?.inputStream()?.use(::load)
+}
+fun signingValue(prop: String, env: String): String? = keystoreProps.getProperty(prop) ?: System.getenv(env)
+val releaseStoreFile = signingValue("storeFile", "DELAYD_KEYSTORE_FILE")
 
 android {
     namespace = "app.delayd"
@@ -12,15 +21,40 @@ android {
         applicationId = "app.delayd"
         minSdk = 26
         targetSdk = 36
-        versionCode = 1
-        versionName = "0.1"
+        // single source of truth in gradle.properties; the version code is a plain monotonic integer
+        versionCode = providers.gradleProperty("VERSION_CODE").get().toInt()
+        versionName = providers.gradleProperty("VERSION_NAME").get()
+    }
+
+    signingConfigs {
+        if (releaseStoreFile != null) create("release") {
+            storeFile = rootProject.file(releaseStoreFile)
+            storePassword = signingValue("storePassword", "DELAYD_KEYSTORE_PASSWORD")
+            keyAlias = signingValue("keyAlias", "DELAYD_KEY_ALIAS")
+            keyPassword = signingValue("keyPassword", "DELAYD_KEY_PASSWORD")
+        }
     }
 
     buildTypes {
         release {
             isMinifyEnabled = true
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"))
+            isShrinkResources = true
+            vcsInfo.include = false // no git info in the APK, keeps builds reproducible
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            signingConfig = if (releaseStoreFile != null) signingConfigs.getByName("release") else {
+                // Local smoke builds only. A tag build without a real key must never produce an artifact.
+                if (System.getenv("GITHUB_REF_TYPE") == "tag" || System.getenv("DELAYD_REQUIRE_RELEASE_KEY") == "true")
+                    throw GradleException("No release keystore configured (keystore.properties / DELAYD_KEYSTORE_FILE)")
+                logger.warn("WARNING: no release keystore configured, signing release with the DEBUG key. Do not publish this build.")
+                signingConfigs.getByName("debug")
+            }
         }
+    }
+
+    // F-Droid and Play: no Google-signed dependency metadata blob in the APK/AAB (also keeps builds reproducible)
+    dependenciesInfo {
+        includeInApk = false
+        includeInBundle = false
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17

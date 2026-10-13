@@ -1,0 +1,28 @@
+Die meisten Fahrgäste holen sich bei einem verspäteten Zug nie das Geld zurück, das ihnen zusteht. Delayd merkt es für dich.
+
+Schalte die Erkennung einmal ein. Delayd erkennt, wenn du in Deutschland Zug fährst, findet den echten Zug in öffentlichen Fahrplandaten, vergleicht planmäßige und tatsächliche Ankunft und sagt dir Bescheid, sobald die Verspätung für eine Entschädigung nach den Fahrgastrechten reicht.
+
+<b>So funktioniert es</b>
+• Erkennt Zugfahrten automatisch, mit akkuschonender Taktung
+• Ordnet jede Fahrt dem echten Zug zu, mit Live-Daten von Transitous
+• Zeigt Verspätung und Wert: 25 % des Fahrpreises ab 60 Minuten, 50 % ab 120 Minuten, mit dem Deutschlandticket 1,50 € pro Fall
+• Beachtet den Mindestbetrag von 4 € und sammelt Deutschlandticket-Fälle pro Monat
+• Führt dich durch den Antrag: Delayd bereitet Fakten und Antragstext vor, eingereicht wird auf der offiziellen Seite des Bahnunternehmens
+• Merkt sich jede Fahrt als offen, beantragt oder erstattet, damit du siehst, was du zurückbekommen hast
+
+<b>Privat von Grund auf</b>
+• Dein Standort bleibt auf deinem Handy
+• Die einzige Netzwerkanfrage fragt Transitous nach den Zügen am Bahnhof, an dem eine Fahrt begann
+• Kein Konto, keine Werbung, keine Analyse, keine Google Play Services
+• Daten jederzeit in der App exportieren oder löschen
+
+<b>Kostenlos und Open Source</b>
+Delayd ist freie Software unter der MIT-Lizenz. Quellcode: github.com/erdem61/delayd
+
+<b>Gut zu wissen</b>
+• Zuerst für Deutschland, weitere Länder stehen auf der Roadmap.
+• Delayd bereitet deinen Antrag vor, reicht ihn aber nicht für dich ein. Anträge laufen über die offiziellen Kanäle des Bahnunternehmens.
+• Verspätungen durch außergewöhnliche Umstände können von der Entschädigung ausgeschlossen sein.
+• Delayd ist ein unabhängiges Projekt und steht in keiner Verbindung zur Deutschen Bahn.
+
+Fahrplandaten: Transitous (transitous.org/sources) und OpenStreetMap-Mitwirkende.

@@ -1,0 +1,1 @@
+Erste Version. Erkennt Zugfahrten automatisch, ordnet sie mit Transitous-Daten dem echten Zug zu, zeigt Verspätungen und mögliche Entschädigung und bereitet deinen Antrag vor. Kostenlos, Open Source, ohne Tracking.
