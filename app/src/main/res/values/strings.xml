@@ -162,4 +162,40 @@
     <string name="source_code">Source code</string>
     <string name="attribution">Data sources: Transitous and OpenStreetMap</string>
     <string name="version">Version %1$s</string>
+
+    <!-- Add a ride by hand -->
+    <string name="ok">OK</string>
+    <string name="add_fab">Add a ride</string>
+    <string name="add_title">Add a ride</string>
+    <string name="add_step_station">Where did you get on?</string>
+    <string name="add_station_label">Station</string>
+    <string name="add_station_hint">e.g. Berlin Hbf</string>
+    <string name="add_type_more">Type at least 2 letters to search.</string>
+    <string name="add_no_stations">No stations found for “%1$s”. Check the spelling or try a larger station nearby.</string>
+    <string name="add_step_when">When did you leave?</string>
+    <string name="add_when_hint">An approximate time is enough. Rides in the future can’t be added.</string>
+    <string name="add_date">Date</string>
+    <string name="add_time">Time</string>
+    <string name="add_set_time">Set time</string>
+    <string name="add_future">That time is in the future.</string>
+    <string name="add_show_trains">Show trains</string>
+    <string name="add_step_train">Which train did you take?</string>
+    <string name="add_trains_from">Departures from %1$s around %2$s</string>
+    <string name="add_no_trains">No trains found at %1$s around that time. Try another time or day.</string>
+    <string name="add_train_to">to %1$s</string>
+    <string name="add_step_dest">Where did you get off?</string>
+    <string name="add_no_stops">This train has not reached any of its stops yet.</string>
+    <string name="add_step_arrival">When did you arrive?</string>
+    <string name="add_actual">Actual arrival</string>
+    <string name="add_arrival_live">Live data shows when the train arrived. Change it only if you know better.</string>
+    <string name="add_arrival_manual">No live data is left for this ride. Enter when you really arrived. The trip is marked as reported by you.</string>
+    <string name="add_button">Add ride</string>
+    <string name="add_dupe">This ride is already in your history.</string>
+    <string name="add_open">Open trip</string>
+    <string name="add_loading">Loading</string>
+    <string name="add_error">Couldn’t load the train data. Please try again.</string>
+    <string name="add_offline">You’re offline. Connect to the internet and try again.</string>
+    <string name="add_retry">Try again</string>
+    <string name="source_reported">Reported by you</string>
+    <string name="source_reported_body">You added this ride by hand and entered the arrival time yourself. DB may check it against its own records.</string>
 </resources>

@@ -31,11 +31,13 @@ fun Screen(
     title: String,
     onBack: (() -> Unit)?,
     actions: @Composable RowScope.() -> Unit = {},
+    fab: (@Composable () -> Unit)? = null,
     content: LazyListScope.() -> Unit,
 ) {
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         contentWindowInsets = WindowInsets(0),
+        floatingActionButton = { fab?.invoke() },
         topBar = {
             TopAppBar(
                 title = { Text(title, style = MaterialTheme.typography.titleLarge) },
@@ -51,7 +53,7 @@ fun Screen(
             val bottom = WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom).asPaddingValues().calculateBottomPadding()
             LazyColumn(
                 Modifier.widthIn(max = MaxContentWidth).fillMaxHeight(),
-                contentPadding = PaddingValues(start = Space.l, end = Space.l, top = Space.s, bottom = bottom + Space.xl),
+                contentPadding = PaddingValues(start = Space.l, end = Space.l, top = Space.s, bottom = bottom + if (fab != null) 88.dp else Space.xl),
                 verticalArrangement = Arrangement.spacedBy(Space.m),
                 content = content,
             )

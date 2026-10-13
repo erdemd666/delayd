@@ -159,4 +159,40 @@
     <string name="source_code">Quellcode</string>
     <string name="attribution">Datenquellen: Transitous und OpenStreetMap</string>
     <string name="version">Version %1$s</string>
+
+    <!-- Fahrt manuell hinzufügen -->
+    <string name="ok">OK</string>
+    <string name="add_fab">Fahrt hinzufügen</string>
+    <string name="add_title">Fahrt hinzufügen</string>
+    <string name="add_step_station">Wo bist du eingestiegen?</string>
+    <string name="add_station_label">Bahnhof</string>
+    <string name="add_station_hint">z. B. Berlin Hbf</string>
+    <string name="add_type_more">Gib mindestens 2 Buchstaben ein.</string>
+    <string name="add_no_stations">Kein Bahnhof für „%1$s“ gefunden. Prüfe die Schreibweise oder probiere einen größeren Bahnhof in der Nähe.</string>
+    <string name="add_step_when">Wann bist du abgefahren?</string>
+    <string name="add_when_hint">Eine ungefähre Uhrzeit reicht. Fahrten in der Zukunft kannst du nicht hinzufügen.</string>
+    <string name="add_date">Datum</string>
+    <string name="add_time">Uhrzeit</string>
+    <string name="add_set_time">Uhrzeit wählen</string>
+    <string name="add_future">Diese Zeit liegt in der Zukunft.</string>
+    <string name="add_show_trains">Züge anzeigen</string>
+    <string name="add_step_train">Mit welchem Zug bist du gefahren?</string>
+    <string name="add_trains_from">Abfahrten ab %1$s um %2$s</string>
+    <string name="add_no_trains">Zu dieser Zeit wurden in %1$s keine Züge gefunden. Probiere eine andere Uhrzeit oder einen anderen Tag.</string>
+    <string name="add_train_to">nach %1$s</string>
+    <string name="add_step_dest">Wo bist du ausgestiegen?</string>
+    <string name="add_no_stops">Dieser Zug hat noch keinen seiner Halte erreicht.</string>
+    <string name="add_step_arrival">Wann bist du angekommen?</string>
+    <string name="add_actual">Tatsächliche Ankunft</string>
+    <string name="add_arrival_live">Die Live-Daten zeigen, wann der Zug ankam. Ändere die Zeit nur, wenn du es besser weißt.</string>
+    <string name="add_arrival_manual">Für diese Fahrt gibt es keine Live-Daten mehr. Gib an, wann du wirklich angekommen bist. Die Fahrt wird als von dir angegeben markiert.</string>
+    <string name="add_button">Fahrt hinzufügen</string>
+    <string name="add_dupe">Diese Fahrt ist schon in deinem Verlauf.</string>
+    <string name="add_open">Fahrt öffnen</string>
+    <string name="add_loading">Wird geladen</string>
+    <string name="add_error">Die Zugdaten konnten nicht geladen werden. Bitte versuche es noch einmal.</string>
+    <string name="add_offline">Du bist offline. Verbinde dich mit dem Internet und versuche es noch einmal.</string>
+    <string name="add_retry">Erneut versuchen</string>
+    <string name="source_reported">Von dir angegeben</string>
+    <string name="source_reported_body">Du hast diese Fahrt von Hand hinzugefügt und die Ankunftszeit selbst eingetragen. Die DB kann sie mit ihren eigenen Daten abgleichen.</string>
 </resources>
