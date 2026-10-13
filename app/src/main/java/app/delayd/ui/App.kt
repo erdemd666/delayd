@@ -32,8 +32,9 @@ fun DelaydApp(prefs: Prefs, deepLink: DeepLink?, onDeepLinkHandled: () -> Unit) 
     LaunchedEffect(deepLink, prefs.onboarded) {
         if (deepLink != null && prefs.onboarded) {
             val trip = trips.firstOrNull { it.id == deepLink.tripId }
-            if (deepLink.claim && trip?.status == ClaimStatus.OPEN) reset("home", "trip/${trip.id}", claimRoute(trip, prefs.dTicket))
-            else reset("home", "trip/${deepLink.tripId}")
+            val routes = if (deepLink.claim && trip?.status == ClaimStatus.OPEN) listOf("trip/${trip.id}", claimRoute(trip, prefs.dTicket)) else listOf("trip/${deepLink.tripId}")
+            // Pushed onto whatever the user is looking at, so Back returns there; routes already on top are not repeated.
+            routes.drop(routes.indexOf(stack.last()) + 1).forEach(::push)
             onDeepLinkHandled()
         }
     }
