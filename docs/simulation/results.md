@@ -46,11 +46,13 @@ Notes
 6. Transitous: cancelled-train lookback 30 -> 75 min (hourly replacement showed 0 min delay); response about 0.85 MB at Berlin Hbf instead of 0.45.
 7. Ride.via (3 checkpoints) + Transitous.onTheTrain: a bus or car is placed against the train's timeline and rejected when 2 of 3 checkpoints are off (14 -> 5 of 16 bus false matches, 6 -> 2 car).
 
-## Live replay (real API, JVM, 1 trains)
+## Live replay (real API, JVM, 3 trains)
 Trains that ran within the last 2 h, fixes synthesized from their real stop coordinates and live times, through detector, Journeys and the live lookup.
 
 | Station | Train | Ride | Planned arrival | Replay end err | Result |
 |---|---|---|---|---|---|
+| Berlin Hbf | RE20 | 17:07Z to S Königs Wusterhausen 17:49Z | 17:42Z | -10 s | rides=1; RE20 to S Königs Wusterhausen Bhf, delay 7 min, realtime |
+| Hamburg Hbf | ICE 617 | 16:38Z to Hamburg-Harburg 16:50Z | 15:55Z | -10 s | rides=1; ICE 617 to Hamburg-Harburg, delay 57 min, realtime |
 | S Potsdam Hauptbahnhof | RB20 (18478) | 2026-10-13T16:47:00Z to S Hennigsdorf Bhf 2026-10-13T17:36:00Z | 2026-10-13T17:28:00Z | -10 s | rides=2 gaps=[597] s; RB20 (18478) to S Hennigsdorf Bhf, delay 8 min, realtime=true |
 
 Emulator: see the section at the end (filled when the emulator is free).
