@@ -1,40 +1,40 @@
-# Handoff: where we stopped (2026-10-13)
+# Handoff: v1.0.0 code-complete
 
-## Done and on `main`
-- v0.1 MVP, then workstreams A (core), B (UI/UX), C (release) and D (manual add), all merged.
-- `main` at the D merge passes testDebugUnitTest (67 tests) and assembleDebug.
-- Before D: assembleRelease and lintDebug passed (0 errors).
-- Plan and contracts: [docs/PLAN.md](docs/PLAN.md).
+## State
+- Workstreams A (core), B (UI/UX), C (release), D (manual add) and E (QA) are all merged into `main`.
+- Final check on `main` passed: `clean testDebugUnitTest assembleDebug assembleRelease bundleRelease lintDebug`.
+  - 70 unit tests, 0 failures.
+  - Lint: 0 errors and 10 accepted warnings, with reasons in [docs/qa/review.md](docs/qa/review.md).
+  - Release APK 1.51 MiB, AAB 3.3 MiB.
+- QA results:
+  - [docs/qa/review.md](docs/qa/review.md): defects, ranked; the fixed and the known-open ones.
+  - [docs/qa/e2e.md](docs/qa/e2e.md): every emulator flow passed, including the R8 release build.
+  - [docs/qa/plan-status.md](docs/qa/plan-status.md): status per PLAN item.
+- Nothing has been pushed. There is no remote yet.
 
-## In progress: Workstream E (QA & polish), stopped midway
-- Branch `ws/qa`, worktree `../delayd-worktrees/qa`. **Not merged into main, not verified.**
-- One commit there: `a2b13af`. It fixes:
-  - "delete all" leaving queued rides behind;
-  - a stale duplicate banner;
-  - fare overflow;
-  - the BootReceiver action check;
-  - plurals and lint cleanups.
-- E stopped during the emulator e2e, at the onboarding "deny" path. Still not done:
-  - `docs/qa/review.md` (review findings);
-  - the rest of the e2e run, recorded in `docs/qa/e2e.md`;
-  - the release (R8) smoke test on the emulator;
-  - the accessibility pass;
-  - docs close-out (CHANGELOG, fastlane, privacy policy now including manual-add search text, plan-status).
-- The full task list for E is in the coordinator's prompt. It mirrors "Phase 2: E" in PLAN.md.
+## Owner to-dos before publishing
+1. Fill in the TODOs in [docs/privacy-policy.md](docs/privacy-policy.md): name, postal address (a legal requirement in Germany) and contact email.
+2. Create the GitHub repo `erdem61/delayd`, push, and enable Pages on `/docs` so the privacy policy has a URL.
+3. Create the release keystore and back it up. Add the 4 GitHub secrets. Steps: [docs/RELEASE.md](docs/RELEASE.md).
+4. Play Console:
+   - App content answers from [docs/release/play-console.md](docs/release/play-console.md).
+   - Data safety now includes the manual-add station search text.
+   - Record the foreground-service demo video.
+5. Real-device checks the emulator can't give:
+   - one real train ride;
+   - a day of battery measurement;
+   - a TalkBack pass;
+   - a contrast check.
+6. Tag `v1.0.0`. CI builds the signed APK + AAB. Upload to the internal testing track, then submit to F-Droid ([docs/release/fdroid.md](docs/release/fdroid.md)).
 
-## Next session
-1. Run `./gradlew testDebugUnitTest assembleDebug lintDebug` on `ws/qa` to check commit `a2b13af`.
-2. Start E again on `ws/qa`, with the remaining items above.
-3. Merge `ws/qa` → main, then run the final `clean testDebugUnitTest assembleDebug assembleRelease bundleRelease lintDebug`.
-4. Owner to-dos (see docs/RELEASE.md and docs/release/play-console.md):
-   - create the keystore and the 4 GitHub secrets;
-   - create the GitHub repo `erdem61/delayd`;
-   - put a real privacy email and postal address in docs/privacy-policy.md;
-   - open the Play Console account.
+## Known open items (from review.md)
+- Tapping a notification resets the back stack.
+- A ride in progress is lost if detection is switched off mid-ride.
+- The Deutschlandticket cap is applied per status group (only matters beyond 10 cases a month).
+- Export goes out as text (fine up to ~4000 trips).
 
 ## Environment notes
 - JAVA_HOME = `C:\Program Files\Android\Android Studio\jbr`.
 - `local.properties` must be exactly `sdk.dir=C\:/Users/erdem/AppData/Local/Android/Sdk` with an LF line ending, or lint fails. Run `clean` after changing it.
-- The session's built-in worktree isolation fails, because the home folder is also a git repo. Create worktrees by hand under `../delayd-worktrees/`.
-- The emulator `Medium_Phone_API_36.1` also has the owner's other apps on it (`com.erdem6.rehab`). Agents must only touch `app.delayd`.
-- The folder `../delayd-worktrees/release` is left over: its worktree is deregistered but Windows refused to delete it. Delete it by hand.
+- The session's worktree isolation fails, because the home folder is also a git repo. Create worktrees by hand under `../delayd-worktrees/`.
+- The emulator `Medium_Phone_API_36.1` also has the owner's other apps on it. Agents must only touch `app.delayd`.
