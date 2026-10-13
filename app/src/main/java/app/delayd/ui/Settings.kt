@@ -164,8 +164,10 @@ private fun HealthRow(title: Int, status: Int, ok: Boolean, actionLabel: Int, on
 
 @Composable
 private fun LinkRow(label: Int, onClick: () -> Unit) {
-    Surface(onClick, Modifier.fillMaxWidth().heightIn(min = 48.dp), color = MaterialTheme.colorScheme.surface) {
-        Text(stringResource(label), Modifier.padding(Space.s).wrapContentHeight(Alignment.CenterVertically), style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.primary)
+    Surface(onClick, Modifier.fillMaxWidth(), color = MaterialTheme.colorScheme.surface) {
+        Box(Modifier.heightIn(min = 48.dp).padding(horizontal = Space.s), Alignment.CenterStart) {
+            Text(stringResource(label), style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.primary)
+        }
     }
 }
 
