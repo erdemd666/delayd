@@ -52,7 +52,9 @@ fun HomeContent(
     Screen(stringResource(R.string.app_name), onBack = null, actions = {
         IconButton(onSettings) { Icon(Icons.Filled.Settings, stringResource(R.string.settings)) }
     }, fab = {
-        ExtendedFloatingActionButton(onClick = onAdd, icon = { Icon(Icons.Filled.Add, null) }, text = { Text(stringResource(R.string.add_fab)) })
+        val addLabel = stringResource(R.string.add_fab)
+        ExtendedFloatingActionButton(onClick = onAdd, modifier = Modifier.semantics { contentDescription = addLabel },
+            icon = { Icon(Icons.Filled.Add, null) }, text = { Text(addLabel) })
     }) {
         item { DetectionCard(running, riding, health, onToggle) }
         item { MoneySummary(trips, dTicket) }
