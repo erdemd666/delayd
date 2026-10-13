@@ -45,6 +45,11 @@
             </intent-filter>
         </service>
 
+        <service
+            android:name=".DrainJob"
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+
         <receiver
             android:name=".NotifActionReceiver"
             android:exported="false" />

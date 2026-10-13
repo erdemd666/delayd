@@ -65,4 +65,23 @@ class JourneysTest {
     fun `single ride without a train gives nothing`() {
         assertEquals(emptyList<Trip>(), Journeys.resolve(listOf(leg1)) { null })
     }
+
+    @Test
+    fun `a ride no train matches is tried as two legs at its standstill and joined as a connection`() {
+        val ride = Ride(fixAt(0), fixAt(60, lon = 14.0), via = listOf(fixAt(15, lon = 13.55), fixAt(45, lon = 13.85)), pause = fixAt(28, lon = 13.7) to fixAt(30, lon = 13.7))
+        val a = tripOf("RE 1", "B", 28, 29)
+        val b = tripOf("RE 2", "C", 60, 70)
+        val asked = mutableListOf<Ride>()
+        val trip = Journeys.resolve(listOf(ride)) { asked += it; if (it.end == ride.pause!!.first) a else if (it.start == ride.pause!!.second) b else null }.single()
+        assertEquals("RE 1 + RE 2", trip.train)
+        assertEquals(10, trip.delayMin)
+        assertEquals(listOf(ride.via[0]), asked[1].via) // each leg gets its own checkpoints
+        assertEquals(listOf(ride.via[1]), asked[2].via)
+    }
+
+    @Test
+    fun `one matching leg is not a trip when the other has no train`() {
+        val ride = Ride(fixAt(0), fixAt(60, lon = 14.0), pause = fixAt(28, lon = 13.7) to fixAt(30, lon = 13.7))
+        assertEquals(emptyList<Trip>(), Journeys.resolve(listOf(ride)) { if (it.end == ride.pause!!.first) tripOf("RE 1", "B", 28, 29) else null })
+    }
 }

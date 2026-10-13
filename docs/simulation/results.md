@@ -28,6 +28,7 @@ Errors are detected minus true time. GPS min is the battery proxy (ideal = the r
 | Signal stop 14 min mid-route | pass | pass | +0.1 / +0.1 | -0.2 / -0.1 | RE1 to Berlin Hbf (14 min) -> RE1 to Berlin Hbf (14 min) | 67 (52) / 53 (52) |
 | Signal stop 6 min mid-route | pass | pass | +0.1 / +0.1 | -0.1 / -0.1 | RE1 to Berlin Hbf (6 min) -> RE1 to Berlin Hbf (6 min) | 63 (44) / 49 (44) |
 | Transfer, 12 min change | pass | pass | +0.1 / +0.1 | -0.1 / -0.2 | RE1 + RE7 to Berlin Hbf (8 min) -> RE1 + RE7 to Berlin Hbf (8 min) | 101 (51) / 40 (51) |
+| Transfer, 2 min change (second train held 1.5 min mid-route) | not run (one ride, no train, dropped) | pass | +0.1 / +0.1 | -0.1 / -0.1 | none -> RE1 + RE7 to Berlin Hbf (1 min) | - / 38 (34) |
 | Transfer, 5 min change | pass | pass | +0.1 / +0.1 | -0.1 / +0.0 | RE1 + RE7 to Berlin Hbf (8 min) -> RE1 + RE7 to Berlin Hbf (8 min) | 53 (44) / 49 (44) |
 | Transfer, 9 min change | pass | pass | +0.1 / +0.1 | +2.1 / -0.2 | RE1 + RE7 to Berlin Hbf (8 min) -> RE1 + RE7 to Berlin Hbf (8 min) | 80 (48) / 40 (48) |
 
@@ -61,7 +62,7 @@ Emulator: see the section at the end (filled when the emulator is free).
 - Fixes are simulated, never from a real phone; noise correlation, Doze and OEM battery killers are untested.
 - Ride start may be the first station where the train reaches 43 km/h (short city legs); the destination, which decides compensation, is right.
 - Vehicles that mirror a train's timeline (bus beside the S-Bahn) can still match; realtime data is required for the check.
-- A change shorter than about 3 min is one ride and finds no single train.
+- A change shorter than about 3 min is one ride; it matches no single train, so `Journeys` splits it at its longest standstill and matches two legs (Workstream H). The standstill must be longer than any other stop on the way (a signal stop longer than the change would be chosen instead).
 
 ## Emulator replay (coordinator, 2026-10-13)
 
@@ -71,4 +72,4 @@ Emulator: see the section at the end (filled when the emulator is free).
 |---|---|---|
 | RE20 Berlin Hbf 17:07Z → S Königs Wusterhausen, planned 17:42Z, actual 17:49Z | 3 pieces (Hbf→Südkreuz, →Blankenfelde area, →KW), queued with notBefore = end + 30 min | joined into one trip **RE20 S+U Berlin Hauptbahnhof → S Königs Wusterhausen Bhf, +7 min, realtime**, queue empty |
 
-Note: pending rides only drain while detection runs. In this run, starting detection from the tile action triggered the lookup.
+Note: pending rides only drained while detection ran; in this run, starting detection from the tile action triggered the lookup. Since Workstream H the app drains them on foreground and a JobScheduler job does when the network is up.

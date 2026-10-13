@@ -15,6 +15,9 @@ Scope: every Kotlin source in `app/src` (main, debug, test), manifests, resource
 | 7 | Low | `BootReceiver.kt:10` (a2b13af) | Receiver acted on any intent action. | Check for BOOT_COMPLETED / MY_PACKAGE_REPLACED. |
 | 8 | Low | `ui/TripDetail.kt` (4bceb82) | A claimed/paid Deutschlandticket trip showed "October: 0 open cases, 0,00 so far". | Month line only for OPEN trips. |
 | 9 | Low | `core_strings` / plurals (a2b13af) | "1 cases" in month texts. | Plurals en + de. |
+| 10 | Medium | `TrackingService.onDestroy` (Workstream H) | A ride in progress was lost when detection was switched off (detector state is in memory). | `TripDetector.flush()` closes it at the last fix through the usual 1 km / 3 km rules and queues it; tests `TripDetectorFlushTest`. |
+| 11 | Medium | `Pipeline` / `RideQueue` (Workstream H) | Pending rides were only looked up while the service ran; with detection off a ride waited for the next start. | `Pipeline.drainAsync` (app in foreground) and a `JobScheduler` job (network, due time, persisted) drain without a service; test `a ride queued as detection stops is looked up later...`. |
+| 12 | Low | `Journeys` / `TripDetector` (Workstream H) | A change under about 3 min was one ride that matched no single train and was dropped. | `Ride.pause` (longest standstill); `Journeys` tries the two legs as a connection; scenario "Transfer, 2 min change" and unit tests. |
 
 ## Not defects / checked and fine
 
@@ -26,8 +29,10 @@ Scope: every Kotlin source in `app/src` (main, debug, test), manifests, resource
 
 ## Found, not fixed (accepted)
 
+- A ride still in progress when the system kills the app without `onDestroy` (low memory, force stop) is lost; only a deliberate stop is flushed.
+- The wake-up job is inexact (JobScheduler may defer it in Doze); a pending ride is then looked up a little later, never lost.
+
 - `Notifier.open` uses `CLEAR_TOP` without `SINGLE_TOP`, so tapping a notification recreates MainActivity and resets in-app navigation. Works (deep link is read in `onCreate`); a one-flag change is possible but changes navigation behaviour, so left.
-- A ride in progress is lost if the user switches detection off mid-ride (detector state is in memory). Rare, documented limit.
 - The 25 % Deutschlandticket cap is applied per status group (open / claimed / paid), not across them, in the totals. Only matters beyond 10 cases a month.
 - Delay notifications arrive about 30 minutes after arrival (`SETTLE`, to allow a connecting ride). Design decision from workstream A.
 - Export is a text share of the JSON (binder size limit is about 1 MB, roughly 4000 trips).
