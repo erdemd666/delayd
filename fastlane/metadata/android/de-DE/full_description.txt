@@ -9,10 +9,11 @@ Schalte die Erkennung einmal ein. Delayd erkennt, wenn du in Deutschland Zug fä
 • Beachtet den Mindestbetrag von 4 € und sammelt Deutschlandticket-Fälle pro Monat
 • Führt dich durch den Antrag: Delayd bereitet Fakten und Antragstext vor, eingereicht wird auf der offiziellen Seite des Bahnunternehmens
 • Merkt sich jede Fahrt als offen, beantragt oder erstattet, damit du siehst, was du zurückbekommen hast
+• Fahrt verpasst? Füge sie von Hand hinzu: Bahnhof suchen, Zug wählen und die Haltestelle, an der du ausgestiegen bist
 
 <b>Privat von Grund auf</b>
 • Dein Standort bleibt auf deinem Handy
-• Die einzige Netzwerkanfrage fragt Transitous nach den Zügen am Bahnhof, an dem eine Fahrt begann
+• Einziger Server ist Transitous, gefragt wird nach den Zügen am Bahnhof, an dem eine Fahrt begann (und, wenn du eine Fahrt von Hand hinzufügst, nach dem gesuchten Bahnhof)
 • Kein Konto, keine Werbung, keine Analyse, keine Google Play Services
 • Daten jederzeit in der App exportieren oder löschen
 

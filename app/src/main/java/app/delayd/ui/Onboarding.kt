@@ -115,7 +115,10 @@ private fun PermissionRow(title: Int, why: Int, granted: Boolean, blocked: Boole
         if (granted) StatusLine(R.string.perm_allowed)
         else {
             if (blocked) Text(stringResource(R.string.perm_blocked), style = MaterialTheme.typography.bodyMedium)
-            Button(onAsk, Modifier.heightIn(min = 48.dp)) { Text(stringResource(if (blocked) R.string.open_app_settings else R.string.allow)) }
+            // two rows say "Allow": the spoken label names what is allowed
+            val action = stringResource(if (blocked) R.string.open_app_settings else R.string.allow)
+            val spoken = action + ": " + stringResource(title)
+            Button(onAsk, Modifier.heightIn(min = 48.dp).semantics { contentDescription = spoken }) { Text(action) }
         }
     }
 }

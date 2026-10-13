@@ -11,7 +11,7 @@
 | Builds from source with plain Gradle, no prebuilt binaries committed | Done (Gradle wrapper only) | `gradlew`, `gradle/wrapper` |
 | Reproducible-friendly build | AGP builds are deterministic; no timestamps, no VCS info (`vcsInfo.include = false`), no random IDs in the build | verify below |
 | Fastlane metadata in the repo | Done | `fastlane/metadata/android/{en-US,de-DE}` |
-| Screenshots | **TODO** B's screenshots from `docs/screenshots/` copied into `fastlane/metadata/android/<locale>/images/phoneScreenshots/` (1.png, 2.png, ...) before submission | |
+| Screenshots | Done: light phone screenshots in `fastlane/metadata/android/<locale>/images/phoneScreenshots/` (en-US 8, de-DE 6) | |
 | Icon | Comes from the app; optional `images/icon.png` (512x512) | |
 | Changelog per `versionCode` | Done: `changelogs/<versionCode>.txt`; add a new file every release | `docs/RELEASE.md` |
 | Anti-Features | None expected. The app uses the public Transitous API, which is itself free software (MOTIS); no tracking, no ads, no non-free network service or non-free assets | |

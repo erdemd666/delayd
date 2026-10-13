@@ -71,7 +71,10 @@
     <string name="comp_title">Compensation</string>
     <string name="rule_none">Under 60 minutes late. Nothing is paid for this trip.</string>
     <string name="rule_dt">With a Deutschlandticket, each delay of 60+ minutes counts %1$s. Cases are collected per month and paid from %2$s.</string>
-    <string name="rule_dt_month">%1$s: %2$d open cases, %3$s so far.</string>
+    <plurals name="rule_dt_month">
+        <item quantity="one">%1$s: %2$d open case, %3$s so far.</item>
+        <item quantity="other">%1$s: %2$d open cases, %3$s so far.</item>
+    </plurals>
     <string name="rule_single_nofare" formatted="false">Add your ticket price in the claim to see the amount. You get 25 % of the fare from 60 minutes late and 50 % from 120.</string>
     <string name="rule_single_25">60+ minutes late: 25 %% of your %1$s fare.</string>
     <string name="rule_single_50">120+ minutes late: 50 %% of your %1$s fare.</string>
@@ -97,7 +100,10 @@
     <string name="fare_owed">You are owed %1$s.</string>
     <string name="fare_below">That is %1$s, below the %2$s minimum, so DB does not pay it out.</string>
     <string name="month_empty">There are no open delays to claim for this month.</string>
-    <string name="month_total_body">%1$d cases × %2$s, capped at %3$s (25 %% of the monthly price).</string>
+    <plurals name="month_total_body">
+        <item quantity="one">%1$d case × %2$s, capped at %3$s (25 %% of the monthly price).</item>
+        <item quantity="other">%1$d cases × %2$s, capped at %3$s (25 %% of the monthly price).</item>
+    </plurals>
     <string name="claim_exact">This is exactly the text that will be copied. It is in German because DB handles claims in German.</string>
     <string name="claim_text_pending">Enter your ticket price to see the claim text.</string>
     <string name="copy_text">Copy text</string>

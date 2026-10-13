@@ -10,6 +10,7 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -144,7 +145,7 @@ private fun CompensationCard(trip: Trip, trips: List<Trip>, dTicket: Boolean) {
                 val ct = Compensation.dTicketMonthCt(cases.map { it.delayMin })
                 BigMoney(money(Compensation.D_TICKET_CASE_CT), color = c.primary)
                 Text(stringResource(R.string.rule_dt, money(Compensation.D_TICKET_CASE_CT), money(Compensation.MIN_PAYOUT_CT)), style = MaterialTheme.typography.bodyMedium)
-                Text(stringResource(R.string.rule_dt_month, monthTitle(month), cases.size, money(ct)), style = MaterialTheme.typography.bodyMedium, color = c.onSurfaceVariant)
+                if (trip.status == ClaimStatus.OPEN) Text(pluralStringResource(R.plurals.rule_dt_month, cases.size, monthTitle(month), cases.size, money(ct)), style = MaterialTheme.typography.bodyMedium, color = c.onSurfaceVariant)
             }
             trip.fareCt == null -> Text(stringResource(R.string.rule_single_nofare), style = MaterialTheme.typography.bodyLarge)
             else -> {

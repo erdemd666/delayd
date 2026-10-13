@@ -1,5 +1,6 @@
 package app.delayd
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ApplicationInfo
@@ -14,6 +15,7 @@ object DebugHooks {
 
     private fun intent(c: Context) = Intent(ACTION).setPackage(c.packageName)
 
+    @SuppressLint("QueryPermissionsNeeded") // own package is always visible
     fun available(c: Context) = c.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE != 0 &&
         c.packageManager.queryBroadcastReceivers(intent(c), 0).isNotEmpty()
 

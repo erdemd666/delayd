@@ -17,8 +17,9 @@ Google defines it exactly: *"Collect" means transmitting data from your app off 
 | Location fixes used by the ride detector | Processed in memory/on the device, never sent | **No** |
 | Trips (train, stations, times, status, fare) | Local JSON file | **No** |
 | Ride-start coordinate + time in the Transitous request | Sent to `api.transitous.org` over HTTPS | **Yes** (it leaves the device) |
+| Manual add: station search text, picked station ID, chosen date/time | Sent to `api.transitous.org` over HTTPS, only when the user taps "Add a ride" | **Yes** |
 
-The Transitous request carries the GPS coordinate where the ride started (radius 500 m query), which is **precise location** (Google: precise = an area smaller than 3 km²). So the honest answer is: **precise location is collected**, for the single purpose of the timetable lookup. Do not answer "no data collected"; that would be wrong and a policy risk.
+The Transitous request carries the GPS coordinate where the ride started (radius 500 m query), which is **precise location** (Google: precise = an area smaller than 3 km²). So the honest answer is: **precise location is collected**, for the single purpose of the timetable lookup. Do not answer "no data collected"; that would be wrong and a policy risk. The manual-add search text is declared as in-app search history.
 
 Even if the coordinate were rounded before sending, a station-level query (500 m radius) is far finer than Google's 3 km² threshold, so declare precise.
 
@@ -31,6 +32,7 @@ Even if the coordinate were rounded before sending, a station-level query (500 m
 | Do you provide a way for users to request that their data be deleted? | See note below |
 | Data type: Location > **Precise location** | Collected: **Yes**. Shared: **No** |
 | Data type: Location > Approximate location | No (the app only handles the precise fix; do not tick both) |
+| Data type: App activity > **In-app search history** (the station name typed in "Add a ride") | Collected: **Yes** (transmitted to Transitous, not stored by the developer). Shared: **No**. Required: No (optional feature). Purpose: App functionality |
 | Is this data collection required or can users turn it off? | **Required** for the feature (without it there is no lookup); the user opts in by granting location and turning detection on |
 | Purposes | **App functionality** only |
 | Ephemeral processing | Does not apply (the data is transmitted, not only processed in memory) |
@@ -58,7 +60,7 @@ The presets are: user-initiated location sharing, navigation, geofencing. Pick t
 
 ### Declaration text (paste)
 
-> Delayd lets the user switch on train-ride detection. While it is on, a foreground service with the type "location" reads the device location to recognise that the user is on a train: it samples every 60 seconds while idle and every 10 seconds only while the device moves at train speed. When a ride ends, the app identifies the train through a public timetable service and tells the user if the delay entitles them to compensation. The service is started only by an explicit user action in the visible app and shows a persistent notification. Location data is processed on the device and is not stored as history or sent to any server; only the ride-start coordinate is used for the timetable query.
+> Delayd lets the user switch on train-ride detection. While it is on, a foreground service with the type "location" reads the device location to recognise that the user is on a train: it samples network location every 5 minutes while idle (every 60 seconds on phones without a motion sensor), every 15 seconds for a few minutes after the motion sensor fires, and GPS every 10 seconds only while the device moves at train speed. When a ride ends, the app identifies the train through a public timetable service and tells the user if the delay entitles them to compensation. The service is started only by an explicit user action in the visible app and shows a persistent notification. Location data is processed on the device and is not stored as history or sent to any server; only the ride-start coordinate is used for the timetable query (plus, when the user adds a ride by hand, the station text they type).
 
 ### User impact if the system delays or interrupts it (paste)
 
@@ -87,8 +89,8 @@ Android permissions in the manifest and why each is needed. Paste into the Play 
 | `ACCESS_COARSE_LOCATION` | Required by Android alongside fine location so the user can choose approximate location in the system prompt. The app then falls back to the network provider. |
 | `FOREGROUND_SERVICE` + `FOREGROUND_SERVICE_LOCATION` | Detection must keep running while the screen is off during a ride; see the declaration above. |
 | `POST_NOTIFICATIONS` | Show the required foreground-service notification and the notification that a delay may qualify for compensation. Requested at runtime; the app works without it. |
-| `INTERNET` | One HTTPS request per ride to `api.transitous.org`. |
-| `RECEIVE_BOOT_COMPLETED` (only if A adds it) | Restore detection after reboot if the user had it on. Starts no location service in the background; see `docs/decisions/background-location.md`. |
+| `INTERNET` | One HTTPS request per ride, plus the requests of the optional manual add (station search, departures), all to `api.transitous.org`. |
+| `RECEIVE_BOOT_COMPLETED` | After a reboot or app update, if the user had detection on, show a "tap to resume" notification. Starts no location service in the background; see `docs/decisions/background-location.md`. Verified on an API 36 emulator. |
 | `ACCESS_BACKGROUND_LOCATION` (**not requested**) | Delayd does not use it: the service is started by the user in the foreground. If A concludes a boot restart needs it, expect a much stricter review (core-functionality justification plus video). Prefer the "tap to resume" notification instead. |
 
 ## 4. Content rating and audience

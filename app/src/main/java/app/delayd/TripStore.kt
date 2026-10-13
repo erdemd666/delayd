@@ -44,6 +44,10 @@ object TripStore {
     @Synchronized
     fun delete(id: String) = save(state.value.filterNot { it.id == id })
 
+    /** Settings "delete all data". */
+    @Synchronized
+    fun clear() = save(emptyList())
+
     private fun save(all: List<Trip>) {
         // write-then-rename so a crash mid-write never loses the history
         val tmp = File(file.parentFile, "trips.json.tmp")

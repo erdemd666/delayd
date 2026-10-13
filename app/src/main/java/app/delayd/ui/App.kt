@@ -1,5 +1,6 @@
 package app.delayd.ui
 
+import android.annotation.SuppressLint
 import androidx.activity.compose.BackHandler
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
@@ -14,6 +15,7 @@ import java.time.YearMonth
  * Routes are plain strings in one saved back stack: "onboarding", "home", "settings", "trip/<id>", "claim/<id>",
  * "month/<yyyy-MM>". Five destinations don't need a navigation library, and BackHandler pops correctly.
  */
+@SuppressLint("MutableCollectionMutableState") // ArrayList is what rememberSaveable can put in a Bundle; every change swaps in a copy
 @Composable
 fun DelaydApp(prefs: Prefs, deepLinkTripId: String?, onDeepLinkHandled: () -> Unit) {
     val trips by TripStore.trips.collectAsState()

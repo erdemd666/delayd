@@ -68,7 +68,10 @@
     <string name="comp_title">Entschädigung</string>
     <string name="rule_none">Weniger als 60 Minuten Verspätung. Für diese Fahrt gibt es nichts.</string>
     <string name="rule_dt">Mit dem Deutschlandticket zählt jede Verspätung ab 60 Minuten mit %1$s. Die Fälle werden pro Monat gesammelt und ab %2$s ausgezahlt.</string>
-    <string name="rule_dt_month">%1$s: %2$d offene Fälle, bisher %3$s.</string>
+    <plurals name="rule_dt_month">
+        <item quantity="one">%1$s: %2$d offener Fall, bisher %3$s.</item>
+        <item quantity="other">%1$s: %2$d offene Fälle, bisher %3$s.</item>
+    </plurals>
     <string name="rule_single_nofare" formatted="false">Trage im Antrag deinen Fahrpreis ein, um den Betrag zu sehen. Ab 60 Minuten Verspätung gibt es 25 % des Fahrpreises, ab 120 Minuten 50 %.</string>
     <string name="rule_single_25">Ab 60 Minuten Verspätung: 25 %% von %1$s Fahrpreis.</string>
     <string name="rule_single_50">Ab 120 Minuten Verspätung: 50 %% von %1$s Fahrpreis.</string>
@@ -94,7 +97,10 @@
     <string name="fare_owed">Dir stehen %1$s zu.</string>
     <string name="fare_below">Das sind %1$s und damit weniger als der Mindestbetrag von %2$s. Die Bahn zahlt das nicht aus.</string>
     <string name="month_empty">Für diesen Monat gibt es keine offenen Verspätungen.</string>
-    <string name="month_total_body">%1$d Fälle × %2$s, höchstens %3$s (25 %% des Monatspreises).</string>
+    <plurals name="month_total_body">
+        <item quantity="one">%1$d Fall × %2$s, höchstens %3$s (25 %% des Monatspreises).</item>
+        <item quantity="other">%1$d Fälle × %2$s, höchstens %3$s (25 %% des Monatspreises).</item>
+    </plurals>
     <string name="claim_exact">Genau dieser Text wird kopiert. Er ist auf Deutsch, weil die Bahn Anträge auf Deutsch bearbeitet.</string>
     <string name="claim_text_pending">Gib deinen Fahrpreis ein, dann siehst du hier den Antragstext.</string>
     <string name="copy_text">Text kopieren</string>

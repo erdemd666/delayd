@@ -52,7 +52,9 @@ fun HomeContent(
     Screen(stringResource(R.string.app_name), onBack = null, actions = {
         IconButton(onSettings) { Icon(Icons.Filled.Settings, stringResource(R.string.settings)) }
     }, fab = {
-        ExtendedFloatingActionButton(onClick = onAdd, icon = { Icon(Icons.Filled.Add, null) }, text = { Text(stringResource(R.string.add_fab)) })
+        val addLabel = stringResource(R.string.add_fab)
+        ExtendedFloatingActionButton(onClick = onAdd, modifier = Modifier.semantics { contentDescription = addLabel },
+            icon = { Icon(Icons.Filled.Add, null) }, text = { Text(addLabel) })
     }) {
         item { DetectionCard(running, riding, health, onToggle) }
         item { MoneySummary(trips, dTicket) }
@@ -134,7 +136,7 @@ private fun Figure(label: String, value: String, modifier: Modifier = Modifier, 
 
 @Composable
 private fun DTicketProgress(trips: List<Trip>, onClaim: (YearMonth) -> Unit) {
-    val month = remember { YearMonth.now(ZONE) }
+    val month = claimMonth(trips, YearMonth.now(ZONE))
     val cases = openCases(trips, month)
     val ct = Compensation.dTicketMonthCt(cases.map { it.delayMin })
     val min = Compensation.MIN_PAYOUT_CT
