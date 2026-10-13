@@ -1,6 +1,7 @@
 package app.delayd.ui
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
@@ -133,3 +134,15 @@ fun Actions(content: @Composable FlowRowScope.() -> Unit) =
 @Composable
 fun TicketGlyph(modifier: Modifier = Modifier, tint: Color) =
     Icon(painterResource(R.drawable.ic_stat_delayd), null, modifier, tint)
+
+const val BRAND_URL = "https://erdem6.com"
+
+/** Quiet "a product of" credit; the whole line is one 48 dp link. */
+@Composable
+fun BrandLine(modifier: Modifier = Modifier) {
+    val uri = androidx.compose.ui.platform.LocalUriHandler.current
+    Box(modifier.fillMaxWidth().heightIn(min = 48.dp).clickable(role = androidx.compose.ui.semantics.Role.Button) { uri.openUri(BRAND_URL) }, Alignment.Center) {
+        Text(stringResource(R.string.brand_line), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textDecoration = androidx.compose.ui.text.style.TextDecoration.Underline)
+    }
+}

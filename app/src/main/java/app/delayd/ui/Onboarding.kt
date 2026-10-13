@@ -55,6 +55,7 @@ fun OnboardingContent(health: Health, onAskLocation: () -> Unit, onAskNotificati
                 when (step) {
                     0 -> Page(R.string.onb1_title, R.string.onb1_body) {
                         Panel { Text(stringResource(R.string.onb1_rules), style = MaterialTheme.typography.bodyLarge) }
+                        BrandLine()
                     }
                     1 -> Page(R.string.onb2_title, R.string.onb2_body) {
                         Panel {

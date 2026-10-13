@@ -66,7 +66,7 @@ Train data comes from [Transitous](https://transitous.org) (MOTIS, open European
 
 ## Known limits
 
-- Germany only. Delayd prepares your claim, it does not file it: DB's claim form needs a login.
+- Germany only, German first: the app is German by default and also available in English. Pick Deutsch / English / System in Settings (Android 13+; older versions follow the phone language). The claim text is always German. Delayd prepares your claim, it does not file it: DB's claim form needs a login.
 - Underground stations without GPS can blur the arrival time.
 - Since June 2023, delays caused by extraordinary circumstances (storms, strikes by third parties) may not be compensated.
 - See the [CHANGELOG](CHANGELOG.md) for what each release covers.
@@ -84,3 +84,7 @@ Delayd is an independent project and is not affiliated with Deutsche Bahn AG. Co
 ## License
 
 [MIT](LICENSE) © 2026 erdem61
+
+---
+
+A product of [erdem6.com](https://erdem6.com) · Ein Produkt von [erdem6.com](https://erdem6.com)

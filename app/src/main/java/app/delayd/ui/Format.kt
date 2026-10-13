@@ -14,16 +14,22 @@ import java.util.Locale
 
 val ZONE: ZoneId = ZoneId.of("Europe/Berlin")
 
+/** The locale of what the user reads: German or English as resolved by Android, anything else shows the German default resources. */
+fun appLocale(): Locale = Locale.getDefault().takeIf { it.language == "en" || it.language == "de" } ?: Locale.GERMANY
+
 /** EN "€4.50", DE "4,50 €". Compensation.format is German-only, so the UI formats money itself. */
-fun money(ct: Int, locale: Locale = Locale.getDefault()): String =
+fun money(ct: Int, locale: Locale = appLocale()): String =
     NumberFormat.getCurrencyInstance(locale).apply { currency = Currency.getInstance("EUR") }.format(ct / 100.0)
 
-fun date(i: Instant, locale: Locale = Locale.getDefault()): String =
-    DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(locale).withZone(ZONE).format(i)
+/** DE "13.10.2026" (with [weekday] "Di., 13.10.2026"), EN "Oct 13, 2026". */
+fun date(i: Instant, locale: Locale = appLocale(), weekday: Boolean = false): String {
+    val day = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(locale).withZone(ZONE).format(i)
+    return if (weekday) DateTimeFormatter.ofPattern("EEE", locale).withZone(ZONE).format(i) + ", " + day else day
+}
 
 fun time(i: Instant): String = DateTimeFormatter.ofPattern("HH:mm").withZone(ZONE).format(i)
 
-fun monthTitle(m: YearMonth, locale: Locale = Locale.getDefault()): String =
+fun monthTitle(m: YearMonth, locale: Locale = appLocale()): String =
     m.format(DateTimeFormatter.ofPattern("LLLL yyyy", locale))
 
 fun Trip.month(): YearMonth = YearMonth.from(scheduledArrival.atZone(ZONE))
@@ -64,3 +70,6 @@ fun claimMonth(trips: List<Trip>, now: YearMonth): YearMonth {
     val last = now.minusMonths(1)
     return if (Compensation.payable(Compensation.dTicketMonthCt(openCases(trips, last).map { it.delayMin }))) last else now
 }
+
+/** Where "claim" leads for [t]: the monthly pool with a Deutschlandticket, else the single-ticket claim. */
+fun claimRoute(t: Trip, dTicket: Boolean) = if (dTicket) "month/${t.month()}" else "claim/${t.id}"

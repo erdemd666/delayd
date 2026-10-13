@@ -83,7 +83,7 @@ private fun Header(trip: Trip) = Panel {
         StatusChip(trip.status)
     }
     Text(trip.train, style = MaterialTheme.typography.headlineSmall)
-    Text(date(trip.scheduledArrival), style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    Text(date(trip.scheduledArrival, weekday = true), style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
 }
 
 /** From/to nodes joined by a line. The two rows draw their own halves so text of any height stays aligned. */

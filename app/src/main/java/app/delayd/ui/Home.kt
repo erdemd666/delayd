@@ -166,7 +166,7 @@ private fun TripRow(trip: Trip, dTicket: Boolean, onClick: () -> Unit) {
         Row(Modifier.padding(Space.l).heightIn(min = 48.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(Space.xs)) {
                 Text(stringResource(R.string.route, trip.from, trip.to), style = MaterialTheme.typography.titleMedium)
-                Text("${trip.train} · ${date(trip.scheduledArrival)}, ${time(trip.scheduledArrival)}", style = MaterialTheme.typography.bodyMedium, color = c.onSurfaceVariant)
+                Text("${trip.train} · ${date(trip.scheduledArrival, weekday = true)}, ${time(trip.scheduledArrival)}", style = MaterialTheme.typography.bodyMedium, color = c.onSurfaceVariant)
             }
             Spacer(Modifier.width(Space.m))
             Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(Space.xs)) {

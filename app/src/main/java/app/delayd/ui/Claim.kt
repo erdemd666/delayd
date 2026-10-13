@@ -1,5 +1,6 @@
 package app.delayd.ui
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.selection.SelectionContainer
@@ -8,6 +9,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -40,6 +42,7 @@ fun claimTextSingle(trip: Trip, fareCt: Int): String = buildString {
     appendLine("Strecke: ${trip.from} → ${trip.to}")
     appendLine("Planmäßige Ankunft: ${time(trip.scheduledArrival)} Uhr")
     appendLine("Tatsächliche Ankunft: ${time(trip.arrival)} Uhr (+${trip.delayMin} Min.)")
+    appendLine("Verspätung am Zielbahnhof: ${trip.delayMin} Min.")
     appendLine("Fahrkarte: Einzelfahrkarte, Fahrpreis ${money(fareCt, DE)}")
     append("Entschädigung: ${if (trip.delayMin >= 120) 50 else 25} % = ${money(owed, DE)}")
 }
@@ -48,7 +51,7 @@ fun claimTextMonth(month: YearMonth, cases: List<Trip>): String = buildString {
     val total = Compensation.dTicketMonthCt(cases.map { it.delayMin })
     appendLine("Fahrgastrechte – Sammelantrag Deutschlandticket, ${monthTitle(month, DE)}")
     appendLine("Fahrkarte: Deutschlandticket")
-    appendLine("Verspätungen von mindestens 60 Minuten am Ziel:")
+    appendLine("Verspätungen von mindestens 60 Minuten am Zielbahnhof:")
     cases.forEachIndexed { i, t ->
         appendLine("${i + 1}. ${DE_DATE.format(t.scheduledArrival)}, ${t.train}, ${t.from} → ${t.to}, " +
             "planmäßig ${time(t.scheduledArrival)} Uhr, tatsächlich ${time(t.arrival)} Uhr (+${t.delayMin} Min.)")
@@ -60,16 +63,19 @@ fun claimTextMonth(month: YearMonth, cases: List<Trip>): String = buildString {
 fun fareText(ct: Int): String = "%d%s%02d".format(ct / 100, DecimalFormatSymbols.getInstance().decimalSeparator, ct % 100)
 
 @Composable
-fun ClaimScreen(id: String, trips: List<Trip>, onBack: () -> Unit, onDone: () -> Unit) {
-    ClaimContent(trips.firstOrNull { it.id == id }, onBack) { fareCt ->
+fun ClaimScreen(id: String, trips: List<Trip>, prefs: Prefs, onBack: () -> Unit, onDone: () -> Unit) {
+    val trip = trips.firstOrNull { it.id == id }
+    ClaimContent(trip, onBack, suggestedFareCt = trip?.let(prefs::fareFor)) { fareCt ->
+        trip?.let { prefs.rememberFare(it, fareCt) }
         TripStore.update(id) { it.copy(fareCt = fareCt, status = ClaimStatus.CLAIMED) }
         onDone()
     }
 }
 
 @Composable
-fun ClaimContent(trip: Trip?, onBack: () -> Unit, onSubmitted: (fareCt: Int) -> Unit) {
-    var fare by rememberSaveable { mutableStateOf(trip?.fareCt?.let(::fareText).orEmpty()) }
+fun ClaimContent(trip: Trip?, onBack: () -> Unit, suggestedFareCt: Int? = null, onSubmitted: (fareCt: Int) -> Unit) {
+    val prefilled = trip?.fareCt == null && suggestedFareCt != null
+    var fare by rememberSaveable { mutableStateOf((trip?.fareCt ?: suggestedFareCt)?.let(::fareText).orEmpty()) }
     val fareCt = parseFareCt(fare)
     val owed = fareCt?.let { Compensation.singleTicketCt(trip?.delayMin ?: 0, it) }
     val payable = owed != null && Compensation.payable(owed)
@@ -80,7 +86,7 @@ fun ClaimContent(trip: Trip?, onBack: () -> Unit, onSubmitted: (fareCt: Int) -> 
         item {
             Panel {
                 Fact(stringResource(R.string.fact_train), trip.train)
-                Fact(stringResource(R.string.fact_date), date(trip.scheduledArrival))
+                Fact(stringResource(R.string.fact_date), date(trip.scheduledArrival, weekday = true))
                 Fact(stringResource(R.string.fact_route), stringResource(R.string.route, trip.from, trip.to))
                 Fact(stringResource(R.string.fact_scheduled), time(trip.scheduledArrival))
                 Fact(stringResource(R.string.fact_actual), stringResource(R.string.actual_short, time(trip.arrival), trip.delayMin))
@@ -100,6 +106,7 @@ fun ClaimContent(trip: Trip?, onBack: () -> Unit, onSubmitted: (fareCt: Int) -> 
                             else -> stringResource(R.string.fare_below, money(owed), money(Compensation.MIN_PAYOUT_CT))
                         })
                     })
+                if (prefilled && fareCt == suggestedFareCt) Text(stringResource(R.string.fare_prefilled), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
         item { StepTitle(3, stringResource(R.string.claim_step_send)) }
@@ -156,6 +163,8 @@ fun MonthClaimContent(month: YearMonth, cases: List<Trip>, onBack: () -> Unit, o
 private fun ClaimSend(text: String?, canSubmit: Boolean, submitLabel: Int, onSubmit: () -> Unit) {
     val clipboard = LocalClipboardManager.current
     val uri = LocalUriHandler.current
+    val context = LocalContext.current
+    val toast = stringResource(R.string.copied_open_db)
     var copied by remember(text) { mutableStateOf(false) }
     Panel {
         Text(stringResource(R.string.claim_exact), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -165,10 +174,12 @@ private fun ClaimSend(text: String?, canSubmit: Boolean, submitLabel: Int, onSub
             }
         }
         Actions {
+            // one tap: copy, say so, open the official page
+            FilledTonalButton({ clipboard.setText(AnnotatedString(text!!)); Toast.makeText(context, toast, Toast.LENGTH_LONG).show(); uri.openUri(DB_CLAIM_URL) },
+                Modifier.heightIn(min = 48.dp), enabled = text != null) { Text(stringResource(R.string.copy_open_db)) }
             OutlinedButton({ clipboard.setText(AnnotatedString(text!!)); copied = true }, Modifier.heightIn(min = 48.dp), enabled = text != null) {
                 Text(stringResource(if (copied) R.string.copied else R.string.copy_text))
             }
-            OutlinedButton({ uri.openUri(DB_CLAIM_URL) }, Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.open_db)) }
         }
         Text(stringResource(R.string.claim_login_note), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Button(onSubmit, Modifier.fillMaxWidth().heightIn(min = 48.dp), enabled = canSubmit) { Text(stringResource(submitLabel)) }
@@ -189,7 +200,7 @@ private fun Fact(label: String, value: String) {
 
 @Preview(showBackground = true, widthDp = 360, heightDp = 1200)
 @Composable
-private fun ClaimPreview() = DelaydTheme(dark = false) { ClaimContent(sampleTrips[2].copy(status = ClaimStatus.OPEN), {}, {}) }
+private fun ClaimPreview() = DelaydTheme(dark = false) { ClaimContent(sampleTrips[2].copy(status = ClaimStatus.OPEN), {}, onSubmitted = {}) }
 
 @Preview(showBackground = true, widthDp = 360, heightDp = 1200)
 @Composable

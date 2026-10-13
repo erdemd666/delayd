@@ -73,6 +73,24 @@ fun SettingsContent(
                 }
             }
         }
+        if (AppLanguage.supported) {
+            item { SectionTitle(stringResource(R.string.set_language)) }
+            item {
+                var lang by remember { mutableStateOf(AppLanguage.current(context)) }
+                Panel(padding = Space.s) {
+                    Column(Modifier.selectableGroup()) {
+                        listOf(null to stringResource(R.string.lang_system), "de" to stringResource(R.string.lang_de), "en" to stringResource(R.string.lang_en)).forEach { (tag, label) ->
+                            Row(Modifier.fillMaxWidth().selectable(lang == tag, role = Role.RadioButton) { lang = tag; AppLanguage.set(context, tag) }.heightIn(min = 48.dp).padding(Space.s),
+                                verticalAlignment = Alignment.CenterVertically) {
+                                RadioButton(lang == tag, null)
+                                Spacer(Modifier.width(Space.m))
+                                Text(label, style = MaterialTheme.typography.titleMedium)
+                            }
+                        }
+                    }
+                }
+            }
+        }
         item { SectionTitle(stringResource(R.string.set_detection)) }
         item {
             Panel(padding = Space.s) {
@@ -120,6 +138,7 @@ fun SettingsContent(
                 Text(stringResource(R.string.version, version), Modifier.padding(Space.s), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
+        item { BrandLine(Modifier.padding(top = Space.s)) }
         debugSlot(context)
     }
     if (confirmDelete) AlertDialog(
