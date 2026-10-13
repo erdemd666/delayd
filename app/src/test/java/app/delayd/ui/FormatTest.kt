@@ -61,4 +61,23 @@ class FormatTest {
         assertEquals(oct, claimMonth(three.take(2), oct))                       // 3 EUR: not payable yet
         assertEquals(oct, claimMonth(three.map { it.copy(status = ClaimStatus.CLAIMED) }, oct))
     }
+
+    @Test fun germanDatesAndWeekdaysAndFallbackLocale() {
+        val t = Instant.parse("2026-10-13T10:00:00Z")
+        assertEquals("13.10.2026", date(t, Locale.GERMANY))
+        assertEquals("Di., 13.10.2026", date(t, Locale.GERMANY, weekday = true))
+        assertEquals("Oct 13, 2026", date(t, Locale.US))
+        val saved = Locale.getDefault()
+        try {
+            Locale.setDefault(Locale.FRANCE)
+            assertEquals(Locale.GERMANY, appLocale()) // unsupported device language: German resources, German formats
+            Locale.setDefault(Locale.UK)
+            assertEquals("€4.50", money(450))
+        } finally { Locale.setDefault(saved) }
+    }
+
+    @Test fun claimRouteDependsOnTicket() {
+        assertEquals("claim/" + trip(75).id, claimRoute(trip(75), false))
+        assertEquals("month/2026-10", claimRoute(trip(75), true))
+    }
 }
