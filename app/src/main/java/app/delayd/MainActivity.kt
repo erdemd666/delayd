@@ -19,7 +19,11 @@ class MainActivity : ComponentActivity() {
     /** Trip (and whether to open its claim) from a delay notification, consumed once by the UI. */
     private var deepLink by mutableStateOf<DeepLink?>(null)
 
-    private fun linkOf(i: Intent) = i.getStringExtra(TrackingService.EXTRA_TRIP_ID)?.let { DeepLink(it, i.getBooleanExtra(Notifier.EXTRA_CLAIM, false)) }
+    private fun linkOf(i: Intent) = i.getStringExtra(TrackingService.EXTRA_TRIP_ID)?.let {
+        val claim = i.getBooleanExtra(Notifier.EXTRA_CLAIM, false)
+        if (claim) Notifier.cancel(this, it) // notification actions do not auto-cancel
+        DeepLink(it, claim)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

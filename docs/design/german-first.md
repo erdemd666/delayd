@@ -24,3 +24,6 @@ Evaluated, not done: asking the ticket type in onboarding (extra step, more copy
 
 ## 4. Dependencies
 None.
+
+## 5. Verification (emulator API 36, debug build)
+DE/EN/System switching (in-app radio and `cmd locale`), tile (add + click turns the location service on through the activity, second click stops it), delay notification actions ("Jetzt beantragen" opens Home > Trip > month claim and clears the notification; "Nicht relevant" sets "Verworfen"), branding line on onboarding page 1 and Settings, German dates with weekday and `1,50 €`. Fare memory and 200 % font scale on the new rows are covered by JVM tests only / not re-checked. Refreshed screenshots: home (de), claim month (de/en), settings (de/en), onboarding 1 (de/en); the others are unchanged in layout but may show older wording.
