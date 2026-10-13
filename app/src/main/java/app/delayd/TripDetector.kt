@@ -76,6 +76,7 @@ class TripDetector(private val onRide: (Ride) -> Unit) {
     fun flush() {
         val s = start ?: return
         start = null
+        held = null
         slowSince = null
         last?.let { close(s, it) }
     }
