@@ -62,3 +62,13 @@ Emulator: see the section at the end (filled when the emulator is free).
 - Ride start may be the first station where the train reaches 43 km/h (short city legs); the destination, which decides compensation, is right.
 - Vehicles that mirror a train's timeline (bus beside the S-Bahn) can still match; realtime data is required for the check.
 - A change shorter than about 3 min is one ride and finds no single train.
+
+## Emulator replay (coordinator, 2026-10-13)
+
+`adb shell am broadcast -a app.delayd.debug.REPLAY_REAL -p app.delayd --es station "Berlin Hbf"` on the merged main debug build. The debug receiver is now exported, but in debug builds only, so adb can reach it.
+
+| Real train | Detector output | Result after the 30 min connection hold |
+|---|---|---|
+| RE20 Berlin Hbf 17:07Z → S Königs Wusterhausen, planned 17:42Z, actual 17:49Z | 3 pieces (Hbf→Südkreuz, →Blankenfelde area, →KW), queued with notBefore = end + 30 min | joined into one trip **RE20 S+U Berlin Hauptbahnhof → S Königs Wusterhausen Bhf, +7 min, realtime**, queue empty |
+
+Note: pending rides only drain while detection runs. In this run, starting detection from the tile action triggered the lookup.

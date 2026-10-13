@@ -3,7 +3,7 @@
     <application>
         <receiver
             android:name="app.delayd.debug.DebugReceiver"
-            android:exported="false">
+            android:exported="true"> <!-- debug builds only: lets adb trigger the simulator -->
             <intent-filter>
                 <action android:name="app.delayd.debug.SIMULATE_RIDE" />
                 <action android:name="app.delayd.debug.REPLAY_REAL" />

@@ -3,7 +3,7 @@
 ## State
 - Workstreams A (core), B (UI/UX), C (release), D (manual add) and E (QA) are all merged into `main`.
 - Final check on `main` passed: `clean testDebugUnitTest assembleDebug assembleRelease bundleRelease lintDebug`.
-  - 70 unit tests, 0 failures.
+  - 107 unit tests (2 live-API tests skipped by default), 0 failures.
   - Lint: 0 errors and 10 accepted warnings, with reasons in [docs/qa/review.md](docs/qa/review.md).
   - Release APK 1.51 MiB, AAB 3.3 MiB.
 - QA results:
@@ -26,6 +26,9 @@
    - a TalkBack pass;
    - a contrast check.
 6. Tag `v1.0.0`. CI builds the signed APK + AAB. Upload to the internal testing track, then submit to F-Droid ([docs/release/fdroid.md](docs/release/fdroid.md)).
+
+## Simulation
+- Real-world scenario suite + live replay: [docs/simulation/results.md](docs/simulation/results.md); GPX demo routes in docs/simulation/gpx/.
 
 ## Known open items (from review.md)
 - Tapping a notification resets the back stack.
