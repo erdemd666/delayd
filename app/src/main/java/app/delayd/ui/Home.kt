@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -34,22 +35,24 @@ const val TRANSITOUS_SOURCES = "https://transitous.org/sources/"
 val MaterialTheme.extra @Composable get() = LocalExtra.current
 
 @Composable
-fun HomeScreen(prefs: Prefs, trips: List<Trip>, onTrip: (Trip) -> Unit, onSettings: () -> Unit, onClaimMonth: (YearMonth) -> Unit) {
+fun HomeScreen(prefs: Prefs, trips: List<Trip>, onTrip: (Trip) -> Unit, onSettings: () -> Unit, onClaimMonth: (YearMonth) -> Unit, onAdd: () -> Unit) {
     val running by TrackingService.running.collectAsState()
     val riding by TrackingService.riding.collectAsState()
     val health by rememberHealth(prefs)
     val toggle = rememberDetectionToggle(prefs)
-    HomeContent(trips, prefs.dTicket, running, riding, health, toggle, onTrip, onSettings, onClaimMonth)
+    HomeContent(trips, prefs.dTicket, running, riding, health, toggle, onTrip, onSettings, onClaimMonth, onAdd)
 }
 
 @Composable
 fun HomeContent(
     trips: List<Trip>, dTicket: Boolean, running: Boolean, riding: Boolean, health: Health,
-    onToggle: (Boolean) -> Unit, onTrip: (Trip) -> Unit, onSettings: () -> Unit, onClaimMonth: (YearMonth) -> Unit,
+    onToggle: (Boolean) -> Unit, onTrip: (Trip) -> Unit, onSettings: () -> Unit, onClaimMonth: (YearMonth) -> Unit, onAdd: () -> Unit,
 ) {
     val uri = LocalUriHandler.current
     Screen(stringResource(R.string.app_name), onBack = null, actions = {
         IconButton(onSettings) { Icon(Icons.Filled.Settings, stringResource(R.string.settings)) }
+    }, fab = {
+        ExtendedFloatingActionButton(onClick = onAdd, icon = { Icon(Icons.Filled.Add, null) }, text = { Text(stringResource(R.string.add_fab)) })
     }) {
         item { DetectionCard(running, riding, health, onToggle) }
         item { MoneySummary(trips, dTicket) }
@@ -192,12 +195,12 @@ internal val okHealth = Health(fine = true, coarseOnly = false, notifications = 
 
 @Preview(showBackground = true, widthDp = 360, heightDp = 780)
 @Composable
-private fun HomePreview() = DelaydTheme(dark = false) { HomeContent(sampleTrips, true, true, false, okHealth, {}, {}, {}, {}) }
+private fun HomePreview() = DelaydTheme(dark = false) { HomeContent(sampleTrips, true, true, false, okHealth, {}, {}, {}, {}, {}) }
 
 @Preview(showBackground = true, widthDp = 360, heightDp = 780)
 @Composable
-private fun HomeDarkPreview() = DelaydTheme(dark = true) { HomeContent(sampleTrips, false, true, true, okHealth, {}, {}, {}, {}) }
+private fun HomeDarkPreview() = DelaydTheme(dark = true) { HomeContent(sampleTrips, false, true, true, okHealth, {}, {}, {}, {}, {}) }
 
 @Preview(showBackground = true, widthDp = 360, heightDp = 640)
 @Composable
-private fun HomeEmptyPreview() = DelaydTheme(dark = false) { HomeContent(emptyList(), true, false, false, okHealth.copy(fine = false), {}, {}, {}, {}) }
+private fun HomeEmptyPreview() = DelaydTheme(dark = false) { HomeContent(emptyList(), true, false, false, okHealth.copy(fine = false), {}, {}, {}, {}, {}) }

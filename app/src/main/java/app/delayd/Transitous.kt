@@ -6,6 +6,7 @@ import org.json.JSONObject
 import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.URL
+import java.net.URLEncoder
 import java.time.DateTimeException
 import java.time.Duration
 import java.time.Instant
@@ -25,10 +26,12 @@ data class Trip(
     val replaced: String? = null,
     /** Rides joined into this trip (a connection counts as one journey). */
     val legs: Int = 1,
+    /** Added by hand with an arrival the user typed (no live data was left). */
+    val userReported: Boolean = false,
 ) {
     val id: String get() = "$train@$scheduledArrival"
     /** True when the arrival time comes from the phone, not from live train data. */
-    val measured: Boolean get() = !realtime
+    val measured: Boolean get() = !realtime && !userReported
     val delayMin: Long get() = Duration.between(scheduledArrival, arrival).toMinutes().coerceAtLeast(0)
 }
 
@@ -47,7 +50,11 @@ data class Departure(
     val realtime: Boolean,
     val next: List<Stop>,
     val cancelled: Boolean = false,
+    val headsign: String = "",
 )
+
+/** A station from the geocoder; [area] (city/region) tells same-named stops apart. */
+data class Place(val name: String, val id: String, val area: String = "")
 
 /** HTTP trouble worth retrying later; [retryAfterSec] is the server's own hint (429/503). */
 class LookupException(message: String, val retryAfterSec: Long? = null) : IOException(message)
@@ -58,7 +65,8 @@ class LookupException(message: String, val retryAfterSec: Long? = null) : IOExce
  * shortcut: going commercial means self-hosting MOTIS or the DB API Marketplace; only this file changes.
  */
 object Transitous {
-    private const val BASE = "https://api.transitous.org/api/v6/stoptimes"
+    private const val API = "https://api.transitous.org/api"
+    private const val BASE = "$API/v6/stoptimes"
     private const val RAIL = "HIGHSPEED_RAIL,LONG_DISTANCE,NIGHT_RAIL,REGIONAL_RAIL,SUBURBAN"
     private const val USER_AGENT = "Delayd/${BuildConfig.VERSION_NAME} (github.com/erdem61/delayd)"
     private const val STOP_RADIUS_M = 800.0
@@ -76,6 +84,10 @@ object Transitous {
             "$BASE?center=${start.lat},${start.lon}&radius=500&time=${start.time.minus(CANCELLED_LOOKBACK)}" +
                 "&window=$window&fetchStops=true&withAlerts=false&mode=$RAIL"
         )
+        return get(url)
+    }
+
+    private fun get(url: URL): String {
         val c = url.openConnection() as HttpURLConnection
         c.connectTimeout = 15_000
         c.readTimeout = 30_000
@@ -87,6 +99,22 @@ object Transitous {
         } finally {
             c.disconnect()
         }
+    }
+
+    /** Manual add: stations whose name matches [text] and that rail runs through. One request, the caller debounces. */
+    fun searchStations(text: String): List<Place> =
+        parsePlaces(get(URL("$API/v1/geocode?text=${URLEncoder.encode(text, "UTF-8")}&type=STOP&mode=$RAIL")))
+
+    /** Manual add: rail departures of one stop from [from] on, with their following stops. */
+    fun departuresAt(stopId: String, from: Instant, n: Int = 20): List<Departure> = parse(get(URL(
+        "$BASE?stopId=${URLEncoder.encode(stopId, "UTF-8")}&time=$from&n=$n&fetchStops=true&withAlerts=false&mode=$RAIL")))
+
+    /** Throws [JSONException] when the response isn't an array; entries without name or id are skipped. */
+    fun parsePlaces(json: String): List<Place> = JSONArray(json).objects().mapNotNull { o ->
+        val name = o.optString("name").takeIf { it.isNotEmpty() } ?: return@mapNotNull null
+        val id = o.optString("id").takeIf { it.isNotEmpty() } ?: return@mapNotNull null
+        val areas = o.optJSONArray("areas")?.objects().orEmpty()
+        Place(name, id, areas.firstOrNull { it.optBoolean("default") && it.optInt("adminLevel") >= 4 }?.optString("name").orEmpty())
     }
 
     /** Throws [JSONException] when the response isn't a stop-time list; single malformed entries are skipped. */
@@ -104,6 +132,7 @@ object Transitous {
                             it.instant("scheduledArrival"), it.instant("arrival"))
                     }.orEmpty(),
                     cancelled = st.optBoolean("cancelled") || st.optBoolean("tripCancelled"),
+                    headsign = st.optString("headsign"),
                 )
             } catch (e: JSONException) {
                 null

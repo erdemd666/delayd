@@ -83,7 +83,7 @@ fun ClaimContent(trip: Trip?, onBack: () -> Unit, onSubmitted: (fareCt: Int) -> 
                 Fact(stringResource(R.string.fact_route), stringResource(R.string.route, trip.from, trip.to))
                 Fact(stringResource(R.string.fact_scheduled), time(trip.scheduledArrival))
                 Fact(stringResource(R.string.fact_actual), stringResource(R.string.actual_short, time(trip.arrival), trip.delayMin))
-                if (!trip.realtime) Text(stringResource(R.string.source_phone_body), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                if (!trip.realtime) Text(stringResource(if (trip.userReported) R.string.source_reported_body else R.string.source_phone_body), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
         item { StepTitle(2, stringResource(R.string.claim_step_fare)) }

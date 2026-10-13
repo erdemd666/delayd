@@ -126,8 +126,8 @@ private fun Timeline(trip: Trip) {
 @Composable
 private fun Source(trip: Trip) = Panel {
     SectionTitle(stringResource(R.string.source_title))
-    Text(stringResource(if (trip.realtime) R.string.source_live else R.string.source_phone), style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
-    Text(stringResource(if (trip.realtime) R.string.source_live_body else R.string.source_phone_body),
+    Text(stringResource(when { trip.realtime -> R.string.source_live; trip.userReported -> R.string.source_reported; else -> R.string.source_phone }), style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
+    Text(stringResource(when { trip.realtime -> R.string.source_live_body; trip.userReported -> R.string.source_reported_body; else -> R.string.source_phone_body }),
         style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
 }
 

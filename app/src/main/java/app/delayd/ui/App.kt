@@ -36,13 +36,14 @@ fun DelaydApp(prefs: Prefs, deepLinkTripId: String?, onDeepLinkHandled: () -> Un
         when {
             route == "onboarding" -> OnboardingScreen(prefs) { prefs.finishOnboarding(); reset("home") }
             route == "settings" -> SettingsScreen(prefs, trips, onBack = ::pop)
+            route == "add" -> AddRideScreen(onBack = ::pop, onOpenTrip = { id -> stack = ArrayList(stack.dropLast(1) + "trip/$id") })
             route.startsWith("trip/") -> TripDetailScreen(arg, trips, prefs.dTicket, ::pop,
                 onClaim = { push(if (prefs.dTicket) "month/${trips.firstOrNull { it.id == arg }?.month() ?: YearMonth.now(ZONE)}" else "claim/$arg") })
             route.startsWith("claim/") -> ClaimScreen(arg, trips, onBack = ::pop, onDone = ::pop)
             route.startsWith("month/") -> MonthClaimScreen(YearMonth.parse(arg), trips, onBack = ::pop, onDone = ::pop)
             else -> HomeScreen(prefs, trips,
                 onTrip = { push("trip/${it.id}") }, onSettings = { push("settings") },
-                onClaimMonth = { push("month/$it") })
+                onClaimMonth = { push("month/$it") }, onAdd = { push("add") })
         }
     }
 }
