@@ -8,13 +8,13 @@
 
 In Germany, a train arriving 60+ minutes late gets you 25 % of the fare back, and 120+ minutes gets you 50 %. With a Deutschlandticket you get 1.50 € per case. Most people never claim. Delayd notices your train rides by itself, checks them against live data and tells you when you're owed money, then prepares the claim.
 
-Free and open source. No accounts, no ads, no analytics, no Google Play Services, no backend. Your location stays on your phone.
+Delayd also lets you add a ride by hand when detection missed one. Free and open source. No accounts, no ads, no analytics, no Google Play Services, no backend. Your location stays on your phone.
 
 ## Screenshots
 
-| Home | Trip detail | Monthly claim | Settings |
-|---|---|---|---|
-| ![Home](docs/screenshots/home-light-en.png) | ![Trip detail](docs/screenshots/trip-detail-light-en.png) | ![Monthly claim](docs/screenshots/claim-month-light-en.png) | ![Settings](docs/screenshots/settings-dark-en.png) |
+| Home | Trip detail | Monthly claim | Add a ride | Settings |
+|---|---|---|---|---|
+| ![Home](docs/screenshots/home-light-en.png) | ![Trip detail](docs/screenshots/trip-detail-light-en.png) | ![Monthly claim](docs/screenshots/claim-month-light-en.png) | ![Add a ride](docs/screenshots/manual-add-light-en.png) | ![Settings](docs/screenshots/settings-dark-en.png) |
 
 ## How it works
 
@@ -27,10 +27,10 @@ GPS / network fixes ──► TripDetector ──► Ride(start, end) ──► 
 | Mobile computing topic | Where |
 |---|---|
 | Sensing and context: is the phone riding a train? | [`TripDetector.kt`](app/src/main/java/app/delayd/TripDetector.kt) |
-| Energy: network fixes every 60 s when idle, GPS every 10 s only while moving | [`TrackingService.kt`](app/src/main/java/app/delayd/TrackingService.kt) |
+| Energy: motion-sensor wake-up, slow network fixes when idle, GPS every 10 s only while moving | [`TrackingService.kt`](app/src/main/java/app/delayd/TrackingService.kt) |
 | Matching a ride to a real train with live delay data | [`Transitous.kt`](app/src/main/java/app/delayd/Transitous.kt) |
 | Phone as witness: when there's no live data, the measured arrival is used | `Transitous.match` |
-| Privacy: location history stays on the device, the API only sees one station query | whole app |
+| Privacy: location history stays on the device, the API only sees station queries | whole app |
 | Domain rules: thresholds, 4 € minimum, Deutschlandticket cap | [`Compensation.kt`](app/src/main/java/app/delayd/Compensation.kt) |
 
 Kotlin, Jetpack Compose, Material 3, platform `LocationManager`. Single `app` module, minSdk 26.
@@ -38,7 +38,8 @@ Kotlin, Jetpack Compose, Material 3, platform `LocationManager`. Single `app` mo
 ## Privacy
 
 - Location is read and processed on the device only. No location history is uploaded.
-- The only network request goes to `api.transitous.org` after a ride: the coordinate where the ride started (about a 500 m search radius) and the time.
+- The only server Delayd talks to is `api.transitous.org`. After a detected ride it gets the coordinate where the ride started (about a 500 m search radius) and the time. If you add a ride by hand, it also gets the station text you type and the station and time you pick.
+- Cloud backup is off (`allowBackup=false`), so trips and queued rides stay on the phone.
 - No accounts, analytics, crash reporting, ads or third-party SDKs.
 - Export and delete your data in the app.
 
@@ -57,7 +58,7 @@ Requires JDK 17 and the Android SDK (or Android Studio).
 
 Release signing, versioning and publishing: [docs/RELEASE.md](docs/RELEASE.md). Contributing: [CONTRIBUTING.md](CONTRIBUTING.md).
 
-**Demo without riding a train:** the Android emulator can play back a GPX route (*Extended controls → Location → Routes*). The unit tests use a real Berlin Hbf departure board ([fixture](app/src/test/resources/departures-berlin-hbf.json)).
+**Demo without riding a train:** debug builds have a *Simulate ride* button at the end of Settings that replays a recorded ride through the real pipeline. The Android emulator can also play back a GPX route (*Extended controls → Location → Routes*). The unit tests use a real Berlin Hbf departure board ([fixture](app/src/test/resources/departures-berlin-hbf.json)).
 
 ## Data credits
 
@@ -72,7 +73,7 @@ Train data comes from [Transitous](https://transitous.org) (MOTIS, open European
 
 ## Roadmap
 
-- [ ] Manual add when detection missed a ride (station and train search)
+- [x] Manual add when detection missed a ride (station and train search)
 - [ ] Ticket QR scan for the fare
 - [ ] Other countries: AT (ÖBB), CH, NL, IT
 
