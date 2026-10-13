@@ -1,0 +1,1 @@
+First release. Detects train rides automatically, matches them to the real train with Transitous data, shows delays and the compensation you may be owed, and prepares your claim. Free, open source, no tracking.

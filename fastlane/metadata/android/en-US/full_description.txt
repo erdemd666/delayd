@@ -1,0 +1,28 @@
+Most people never claim the money they are owed when a train is late. Delayd does the noticing for you.
+
+Switch detection on once. Delayd recognises when you ride a train in Germany, finds the real train in public timetable data, compares scheduled and actual arrival, and tells you when a delay is big enough for compensation under the German rail passenger rights.
+
+<b>How it works</b>
+• Detects train rides automatically, with a battery-friendly duty cycle
+• Matches each ride to the real train using live data from Transitous
+• Shows your delay and what it is worth: 25 % of a single-ticket fare from 60 minutes, 50 % from 120 minutes, or 1.50 € per case with the Deutschlandticket
+• Respects the 4 € minimum payout and collects Deutschlandticket cases per month
+• Guides you through the claim: it prepares the facts and a claim text, then you submit it on the official railway page
+• Tracks each trip as open, claimed or paid, so you can see what you have recovered
+
+<b>Private by design</b>
+• Your location stays on your phone
+• The only network request asks Transitous for the trains around the station where a ride started
+• No account, no ads, no analytics, no Google Play Services
+• Export or delete your data any time in the app
+
+<b>Free and open source</b>
+Delayd is free software under the MIT license. Source code: github.com/erdem61/delayd
+
+<b>Good to know</b>
+• Germany first. Other countries are on the roadmap.
+• Delayd prepares your claim, it does not file it for you. Claims go through the official railway channels.
+• Delays caused by extraordinary circumstances may be excluded from compensation.
+• Delayd is an independent project and is not affiliated with Deutsche Bahn.
+
+Timetable data: Transitous (transitous.org/sources) and OpenStreetMap contributors.
