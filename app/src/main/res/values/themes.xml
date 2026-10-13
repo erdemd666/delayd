@@ -1,0 +1,10 @@
+<resources>
+    <!-- Window colours avoid a white flash before Compose draws; edge-to-edge bars are set in MainActivity. -->
+    <style name="Theme.Delayd" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/window_background</item>
+        <item name="android:colorBackground">@color/window_background</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
+</resources>
