@@ -18,6 +18,9 @@ Scope: every Kotlin source in `app/src` (main, debug, test), manifests, resource
 | 10 | Medium | `TrackingService.onDestroy` (Workstream H) | A ride in progress was lost when detection was switched off (detector state is in memory). | `TripDetector.flush()` closes it at the last fix through the usual 1 km / 3 km rules and queues it; tests `TripDetectorFlushTest`. |
 | 11 | Medium | `Pipeline` / `RideQueue` (Workstream H) | Pending rides were only looked up while the service ran; with detection off a ride waited for the next start. | `Pipeline.drainAsync` (app in foreground) and a `JobScheduler` job (network, due time, persisted) drain without a service; test `a ride queued as detection stops is looked up later...`. |
 | 12 | Low | `Journeys` / `TripDetector` (Workstream H) | A change under about 3 min was one ride that matched no single train and was dropped. | `Ride.pause` (longest standstill); `Journeys` tries the two legs as a connection; scenario "Transfer, 2 min change" and unit tests. |
+| 13 | Medium | `Notifier.open`, `MainActivity` (workstream I) | A notification tap used `CLEAR_TOP` without `SINGLE_TOP`: the running activity was recreated and in-app navigation reset. | `launchMode="singleTop"` plus `FLAG_ACTIVITY_SINGLE_TOP` instead of `CLEAR_TOP`; `onNewIntent` pushes Trip (or Trip > Claim) onto the current back stack. The tile's `ACTION_START_DETECTION` is handled in `onNewIntent` too. Checked on the emulator for the delay tap, "Claim now" and the tile; the monthly-claim notification carries no trip, so it just brings the app forward. |
+| 14 | Low | `Compensation.dTicketMonthCt`, `ui/Format.totals` (workstream I) | The 25 % Deutschlandticket cap was applied per status group, so open + claimed + paid could exceed 15,75 EUR a month. | The cap is shared per month (paid first, then claimed, then open); `dTicketTakenCt` feeds Home, month claim, trip detail, claim text and the monthly notification. JVM tests in `CompensationTest`, `MonthlyClaimTest`, `FormatTest`. |
+| 15 | Low | `ui/Components.kt Screen`, `ui/Claim.kt Fact` (workstream I) | At 200 % font scale the fixed-height app bar clipped long titles and "Planmäßige Ankunft" broke mid-word in the claim facts. | Own wrapping app bar; facts stack label above value above 1.3x. Also: fare field error state, announcement of "Kopiert", language names tagged with their language for TalkBack. |
 
 ## Not defects / checked and fine
 
@@ -31,9 +34,6 @@ Scope: every Kotlin source in `app/src` (main, debug, test), manifests, resource
 
 - A ride still in progress when the system kills the app without `onDestroy` (low memory, force stop) is lost; only a deliberate stop is flushed.
 - The wake-up job is inexact (JobScheduler may defer it in Doze); a pending ride is then looked up a little later, never lost.
-
-- `Notifier.open` uses `CLEAR_TOP` without `SINGLE_TOP`, so tapping a notification recreates MainActivity and resets in-app navigation. Works (deep link is read in `onCreate`); a one-flag change is possible but changes navigation behaviour, so left.
-- The 25 % Deutschlandticket cap is applied per status group (open / claimed / paid), not across them, in the totals. Only matters beyond 10 cases a month.
 - Delay notifications arrive about 30 minutes after arrival (`SETTLE`, to allow a connecting ride). Design decision from workstream A.
 - Export is a text share of the JSON (binder size limit is about 1 MB, roughly 4000 trips).
 - Notifications are not re-sent if `POST_NOTIFICATIONS` is denied when a trip is found; the trip still appears in the app.

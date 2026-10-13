@@ -1,7 +1,7 @@
 # Handoff: v1.0.0 code-complete
 
 ## State
-- Workstreams A (core), B (UI/UX), C (release), D (manual add) and E (QA) are all merged into `main`.
+- Workstreams A–E (core, UI/UX, release, manual add, QA), F (German-first, UX, erdem6.com branding), G (simulation), H (core open items) and I (UI open items, a11y, screenshots) are all merged into `main`.
 - Final check on `main` passed: `clean testDebugUnitTest assembleDebug assembleRelease bundleRelease lintDebug`.
   - 107 unit tests (2 live-API tests skipped by default), 0 failures.
   - Lint: 0 errors and 10 accepted warnings, with reasons in [docs/qa/review.md](docs/qa/review.md).
@@ -31,10 +31,10 @@
 - Real-world scenario suite + live replay: [docs/simulation/results.md](docs/simulation/results.md); GPX demo routes in docs/simulation/gpx/.
 
 ## Known open items (from review.md)
-- Tapping a notification resets the back stack.
-- A ride in progress is lost if detection is switched off mid-ride.
-- The Deutschlandticket cap is applied per status group (only matters beyond 10 cases a month).
+- A ride in progress is lost only if the system kills the app without `onDestroy` (force stop, low memory).
+- The drain job is inexact: in Doze a pending ride is looked up later, never lost.
 - Export goes out as text (fine up to ~4000 trips).
+- Not run on a device yet: the JobScheduler drain, the monthly-claim notification, a real TalkBack pass.
 
 ## Environment notes
 - JAVA_HOME = `C:\Program Files\Android\Android Studio\jbr`.

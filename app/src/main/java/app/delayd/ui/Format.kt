@@ -46,20 +46,30 @@ fun tripCt(t: Trip, dTicket: Boolean): Int? = when {
     else -> t.fareCt?.let { Compensation.singleTicketCt(t.delayMin, it) }
 }
 
-/** Total for [trips]. With [needPayable] amounts under the 4 EUR minimum count as nothing (they can't be claimed yet). */
-fun totalCt(trips: List<Trip>, dTicket: Boolean, needPayable: Boolean): Int {
-    fun ok(ct: Int) = !needPayable || Compensation.payable(ct)
-    return if (dTicket) trips.groupBy { it.month() }.values.sumOf { Compensation.dTicketMonthCt(it.map { t -> t.delayMin }).takeIf(::ok) ?: 0 }
-    else trips.sumOf { tripCt(it, false)?.takeIf(::ok) ?: 0 }
-}
-
 data class Totals(val owed: Int, val claimed: Int, val recovered: Int)
 
-fun totals(trips: List<Trip>, dTicket: Boolean) = Totals(
-    owed = totalCt(trips.filter { it.status == ClaimStatus.OPEN }, dTicket, needPayable = true),
-    claimed = totalCt(trips.filter { it.status == ClaimStatus.CLAIMED }, dTicket, needPayable = false),
-    recovered = totalCt(trips.filter { it.status == ClaimStatus.PAID }, dTicket, needPayable = false),
-)
+/**
+ * Open / claimed / paid amounts. Open amounts under the 4 EUR minimum count as nothing (they can't be claimed yet).
+ * Deutschlandticket: the 25 % cap holds per month across all three, filled paid first, then claimed, then open.
+ */
+fun totals(trips: List<Trip>, dTicket: Boolean): Totals {
+    fun sum(status: ClaimStatus, needPayable: Boolean = false) = trips.filter { it.status == status }
+        .sumOf { tripCt(it, false)?.takeIf { ct -> !needPayable || Compensation.payable(ct) } ?: 0 }
+    if (!dTicket) return Totals(sum(ClaimStatus.OPEN, true), sum(ClaimStatus.CLAIMED), sum(ClaimStatus.PAID))
+    var t = Totals(0, 0, 0)
+    for (m in trips.groupBy { it.month() }.values) {
+        fun delays(s: ClaimStatus) = m.filter { it.status == s }.map { it.delayMin }
+        val paid = Compensation.dTicketMonthCt(delays(ClaimStatus.PAID))
+        val claimed = Compensation.dTicketMonthCt(delays(ClaimStatus.CLAIMED), paid)
+        val open = Compensation.dTicketMonthCt(delays(ClaimStatus.OPEN), paid + claimed)
+        t = Totals(t.owed + open.takeIf(Compensation::payable).let { it ?: 0 }, t.claimed + claimed, t.recovered + paid)
+    }
+    return t
+}
+
+/** What is still claimable for [month]'s open cases after claimed and paid ones took their share of the cap. */
+fun openCt(trips: List<Trip>, month: YearMonth) =
+    Compensation.dTicketMonthCt(openCases(trips, month).map { it.delayMin }, Compensation.dTicketTakenCt(trips, month, ZONE))
 
 /** Open delayed Deutschlandticket cases of [month], the pool a monthly claim is built from. */
 fun openCases(trips: List<Trip>, month: YearMonth) =
@@ -68,7 +78,7 @@ fun openCases(trips: List<Trip>, month: YearMonth) =
 /** The month Home offers to claim: last month while it still has a payable pool (the notification points there), else this one. */
 fun claimMonth(trips: List<Trip>, now: YearMonth): YearMonth {
     val last = now.minusMonths(1)
-    return if (Compensation.payable(Compensation.dTicketMonthCt(openCases(trips, last).map { it.delayMin }))) last else now
+    return if (Compensation.payable(openCt(trips, last))) last else now
 }
 
 /** Where "claim" leads for [t]: the monthly pool with a Deutschlandticket, else the single-ticket claim. */

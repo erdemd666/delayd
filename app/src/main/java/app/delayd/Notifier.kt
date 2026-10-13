@@ -63,7 +63,7 @@ object Notifier {
 
     /** [requestCode] must differ per extra, or PendingIntents with equal intents share (and overwrite) one extra. */
     private fun open(c: Context, requestCode: Int, tripId: String?, claim: Boolean = false): PendingIntent {
-        val intent = Intent(c, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        val intent = Intent(c, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
         tripId?.let { intent.putExtra(TrackingService.EXTRA_TRIP_ID, it) }
         if (claim) intent.putExtra(EXTRA_CLAIM, true)
         return PendingIntent.getActivity(c, requestCode, intent, FLAGS)

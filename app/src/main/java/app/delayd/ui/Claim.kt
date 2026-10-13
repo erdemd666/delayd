@@ -10,9 +10,12 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.KeyboardType
@@ -47,8 +50,8 @@ fun claimTextSingle(trip: Trip, fareCt: Int): String = buildString {
     append("Entschädigung: ${if (trip.delayMin >= 120) 50 else 25} % = ${money(owed, DE)}")
 }
 
-fun claimTextMonth(month: YearMonth, cases: List<Trip>): String = buildString {
-    val total = Compensation.dTicketMonthCt(cases.map { it.delayMin })
+fun claimTextMonth(month: YearMonth, cases: List<Trip>, takenCt: Int = 0): String = buildString {
+    val total = Compensation.dTicketMonthCt(cases.map { it.delayMin }, takenCt)
     appendLine("Fahrgastrechte – Sammelantrag Deutschlandticket, ${monthTitle(month, DE)}")
     appendLine("Fahrkarte: Deutschlandticket")
     appendLine("Verspätungen von mindestens 60 Minuten am Zielbahnhof:")
@@ -97,7 +100,7 @@ fun ClaimContent(trip: Trip?, onBack: () -> Unit, suggestedFareCt: Int? = null, 
         item {
             Panel {
                 OutlinedTextField(fare, { fare = it }, Modifier.fillMaxWidth(), label = { Text(stringResource(R.string.fare_label)) }, singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    isError = fare.isNotBlank() && owed == null, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     supportingText = {
                         Text(when {
                             fare.isBlank() -> stringResource(R.string.fare_hint)
@@ -122,15 +125,15 @@ fun ClaimContent(trip: Trip?, onBack: () -> Unit, suggestedFareCt: Int? = null, 
 @Composable
 fun MonthClaimScreen(month: YearMonth, trips: List<Trip>, onBack: () -> Unit, onDone: () -> Unit) {
     val cases = openCases(trips, month)
-    MonthClaimContent(month, cases, onBack) {
+    MonthClaimContent(month, cases, onBack, takenCt = Compensation.dTicketTakenCt(trips, month, ZONE)) {
         cases.forEach { c -> TripStore.update(c.id) { it.copy(status = ClaimStatus.CLAIMED) } }
         onDone()
     }
 }
 
 @Composable
-fun MonthClaimContent(month: YearMonth, cases: List<Trip>, onBack: () -> Unit, onSubmitted: () -> Unit) {
-    val total = Compensation.dTicketMonthCt(cases.map { it.delayMin })
+fun MonthClaimContent(month: YearMonth, cases: List<Trip>, onBack: () -> Unit, takenCt: Int = 0, onSubmitted: () -> Unit) {
+    val total = Compensation.dTicketMonthCt(cases.map { it.delayMin }, takenCt)
     val payable = Compensation.payable(total)
     Screen(stringResource(R.string.claim_month_title, monthTitle(month)), onBack) {
         if (cases.isEmpty()) { item { Text(stringResource(R.string.month_empty), Modifier.padding(Space.xl)) }; return@Screen }
@@ -149,12 +152,12 @@ fun MonthClaimContent(month: YearMonth, cases: List<Trip>, onBack: () -> Unit, o
         item {
             Panel {
                 BigMoney(money(total), color = MaterialTheme.colorScheme.primary)
-                Text(pluralStringResource(R.plurals.month_total_body, cases.size, cases.size, money(Compensation.D_TICKET_CASE_CT), money(Compensation.D_TICKET_PRICE_CT / 4)), style = MaterialTheme.typography.bodyMedium)
+                Text(pluralStringResource(R.plurals.month_total_body, cases.size, cases.size, money(Compensation.D_TICKET_CASE_CT), money(Compensation.D_TICKET_CAP_CT)), style = MaterialTheme.typography.bodyMedium)
                 if (!payable) Text(stringResource(R.string.rule_below_min, money(Compensation.MIN_PAYOUT_CT)), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
         item { StepTitle(3, stringResource(R.string.claim_step_send)) }
-        item { ClaimSend(claimTextMonth(month, cases), payable, R.string.claim_month_submitted, onSubmitted) }
+        item { ClaimSend(claimTextMonth(month, cases, takenCt), payable, R.string.claim_month_submitted, onSubmitted) }
     }
 }
 
@@ -178,7 +181,7 @@ private fun ClaimSend(text: String?, canSubmit: Boolean, submitLabel: Int, onSub
             FilledTonalButton({ clipboard.setText(AnnotatedString(text!!)); Toast.makeText(context, toast, Toast.LENGTH_LONG).show(); uri.openUri(DB_CLAIM_URL) },
                 Modifier.heightIn(min = 48.dp), enabled = text != null) { Text(stringResource(R.string.copy_open_db)) }
             OutlinedButton({ clipboard.setText(AnnotatedString(text!!)); copied = true }, Modifier.heightIn(min = 48.dp), enabled = text != null) {
-                Text(stringResource(if (copied) R.string.copied else R.string.copy_text))
+                Text(stringResource(if (copied) R.string.copied else R.string.copy_text), Modifier.semantics { liveRegion = LiveRegionMode.Polite }) // announce "Kopiert"
             }
         }
         Text(stringResource(R.string.claim_login_note), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -192,9 +195,13 @@ private fun StepTitle(n: Int, title: String) =
 
 @Composable
 private fun Fact(label: String, value: String) {
-    Row(Modifier.fillMaxWidth().semantics(mergeDescendants = true) {}, horizontalArrangement = Arrangement.spacedBy(Space.m)) {
-        Text(label, Modifier.weight(0.4f), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        Text(value, Modifier.weight(0.6f), style = MaterialTheme.typography.bodyLarge)
+    // Label and value side by side only while the labels fit; at large font scale "Planmäßige Ankunft" would break mid-word.
+    val stacked = LocalDensity.current.fontScale > 1.3f
+    val labelText = @Composable { m: Modifier -> Text(label, m, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+    val valueText = @Composable { m: Modifier -> Text(value, m, style = MaterialTheme.typography.bodyLarge) }
+    if (stacked) Column(Modifier.fillMaxWidth().semantics(mergeDescendants = true) {}) { labelText(Modifier); valueText(Modifier) }
+    else Row(Modifier.fillMaxWidth().semantics(mergeDescendants = true) {}, horizontalArrangement = Arrangement.spacedBy(Space.m)) {
+        labelText(Modifier.weight(0.4f)); valueText(Modifier.weight(0.6f))
     }
 }
 
@@ -206,5 +213,5 @@ private fun ClaimPreview() = DelaydTheme(dark = false) { ClaimContent(sampleTrip
 @Composable
 private fun MonthClaimPreview() = DelaydTheme(dark = true) {
     val m = YearMonth.of(2026, 10)
-    MonthClaimContent(m, List(3) { sampleTrips[0].copy(train = "ICE ${1600 + it}") }, {}, {})
+    MonthClaimContent(m, List(3) { sampleTrips[0].copy(train = "ICE ${1600 + it}") }, {}, onSubmitted = {})
 }

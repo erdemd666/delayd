@@ -25,6 +25,20 @@ class MainActivity : ComponentActivity() {
         DeepLink(it, claim)
     }
 
+    /** The tile brought a background app forward only to start detection (the cold path finishes right away); send it back. */
+    private var backWhenShown = false
+
+    private var stopped = false
+
+    override fun onStop() { super.onStop(); stopped = true }
+
+    override fun onResume() {
+        super.onResume()
+        stopped = false
+        Pipeline.drainAsync(applicationContext) // rides queued while detection was off are looked up now
+        if (backWhenShown) { backWhenShown = false; window.decorView.post { moveTaskToBack(true) } }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         TripStore.init(this)
@@ -37,7 +51,12 @@ class MainActivity : ComponentActivity() {
         Notifier.channels(this) // channel names follow the app language
         // After rotation the same intent is delivered again; only a fresh launch may navigate.
         if (savedInstanceState == null) deepLink = linkOf(intent)
-        addOnNewIntentListener { linkOf(it)?.let { l -> deepLink = l } }
+        addOnNewIntentListener { i ->
+            // singleTop: a notification tap or the tile while the app is running arrives here instead of recreating the activity.
+            if (i.action == ACTION_START_DETECTION) {
+                if (readHealth(this, prefs).fine) { startDetection(this); backWhenShown = stopped }
+            } else linkOf(i)?.let { deepLink = it }
+        }
         setContent { DelaydTheme { DelaydApp(prefs, deepLink) { deepLink = null } } }
     }
 
