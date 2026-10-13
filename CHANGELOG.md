@@ -27,6 +27,7 @@ First public release.
 - DB passenger-rights rules: single tickets (25 % / 50 %), Deutschlandticket (1.50 EUR per case, monthly cap), 4 EUR minimum.
 - Notifications on separate channels: a delay notification that opens the trip, a monthly Deutschlandticket claim reminder, the resume notice.
 - App: onboarding with permission rationale and denied / "don't ask again" handling, Home (detection status, money summary, Deutschlandticket progress, trips by month), trip detail with timeline, data source and rule explanation, claim flow (German claim text, copy, open the DB page, mark claimed / paid), Settings (ticket type, detection, health check, export, delete all, licenses, data sources).
+- No ride is lost when detection is switched off mid-ride; pending rides are looked up with detection off (when the app opens and when the network is back); a change of trains under 3 min is matched as a connection.
 - Add a ride by hand: station search, train and destination pick, optional typed arrival time, duplicate detection, offline state.
 - English and German, light and dark theme, TalkBack labels, 48 dp touch targets, usable at 200 % font scale, edge-to-edge, landscape and tablets.
 - Debug builds: a "Simulate ride" button that replays a recorded ride through the real pipeline.
