@@ -62,6 +62,7 @@ object TripStore {
             .put("status", it.status.name)
             .put("replaced", it.replaced ?: JSONObject.NULL)
             .put("legs", it.legs)
+            .put("userReported", it.userReported)
     }).toString()
 
     /** Rows that can't be read are skipped; a response that isn't an array throws [org.json.JSONException]. */
@@ -75,7 +76,7 @@ object TripStore {
                     fareCt = if (o.isNull("fareCt")) null else o.getInt("fareCt"),
                     status = ClaimStatus.entries.firstOrNull { it.name == o.optString("status") } ?: ClaimStatus.OPEN,
                     replaced = if (o.isNull("replaced")) null else o.optString("replaced"),
-                    legs = o.optInt("legs", 1))
+                    legs = o.optInt("legs", 1), userReported = o.optBoolean("userReported"))
             } catch (e: JSONException) {
                 null
             } catch (e: DateTimeException) {
