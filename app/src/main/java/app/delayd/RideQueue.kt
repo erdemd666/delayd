@@ -96,6 +96,7 @@ class RideQueue(private val file: File, private val clock: () -> Instant = Insta
         val tmp = File(file.parentFile, file.name + ".tmp")
         tmp.writeText(JSONArray(all.map {
             JSONObject().put("start", fixJson(it.ride.start)).put("end", fixJson(it.ride.end)).put("via", JSONArray(it.ride.via.map(::fixJson)))
+                .apply { it.ride.pause?.let { (a, b) -> put("pause", JSONArray(listOf(fixJson(a), fixJson(b)))) } }
                 .put("attempts", it.attempts).put("notBefore", it.notBefore.toString())
         }).toString())
         if (!tmp.renameTo(file)) file.writeText(tmp.readText())
@@ -107,7 +108,8 @@ class RideQueue(private val file: File, private val clock: () -> Instant = Insta
                 try {
                     val o = a.getJSONObject(it)
                     val via = o.optJSONArray("via")?.let { v -> (0 until v.length()).map { i -> fix(v.getJSONObject(i)) } }.orEmpty()
-                    Item(Ride(fix(o.getJSONObject("start")), fix(o.getJSONObject("end")), via), o.optInt("attempts"),
+                    val pause = o.optJSONArray("pause")?.let { p -> fix(p.getJSONObject(0)) to fix(p.getJSONObject(1)) }
+                    Item(Ride(fix(o.getJSONObject("start")), fix(o.getJSONObject("end")), via, pause), o.optInt("attempts"),
                         Instant.parse(o.getString("notBefore")))
                 } catch (e: JSONException) { null } catch (e: DateTimeException) { null }
             }

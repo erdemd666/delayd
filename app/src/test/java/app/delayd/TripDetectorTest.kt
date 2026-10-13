@@ -147,4 +147,29 @@ class TripDetectorFlushTest {
         assertEquals(1, rides.size)
         TripDetector { throw AssertionError() }.flush()
     }
+
+class TripDetectorPauseTest {
+    private val t0 = Instant.parse("2026-10-13T08:00:00Z")
+    private fun fix(sec: Long, northM: Double) = Fix(t0.plusSeconds(sec), 52.0 + northM / 111_195.0, 13.0)
+
+    @Test
+    fun `the longest standstill of a ride is kept for a split`() {
+        val rides = mutableListOf<Ride>()
+        val d = TripDetector { rides += it }
+        var t = 0L
+        var pos = 0.0
+        repeat(3) { t += 10; d.add(fix(t, pos)) }
+        repeat(40) { t += 10; pos += 300; d.add(fix(t, pos)) }
+        repeat(6) { t += 10; d.add(fix(t, pos)) }  // 1 min at a station
+        repeat(40) { t += 10; pos += 300; d.add(fix(t, pos)) }
+        val changeAt = t
+        repeat(12) { t += 10; d.add(fix(t, pos)) } // 2 min change: no split by the detector
+        repeat(40) { t += 10; pos += 300; d.add(fix(t, pos)) }
+        repeat(30) { t += 10; d.add(fix(t, pos)) }
+        assertEquals(1, rides.size)
+        val (from, to) = rides[0].pause!!
+        assertTrue(Duration.between(t0.plusSeconds(changeAt), from.time).abs() <= Duration.ofSeconds(20))
+        assertTrue(Duration.between(from.time, to.time) >= Duration.ofSeconds(100))
+    }
+}
 }

@@ -29,12 +29,22 @@ object Journeys {
 
     /** One trip for a whole ride, else one per connection (all legs have a train) or per leg that has one. */
     fun resolve(legs: List<Ride>, find: (Ride) -> Trip?): List<Trip> {
-        if (legs.size == 1) return listOfNotNull(find(legs[0]))
+        if (legs.size == 1) return listOfNotNull(findOrSplit(legs[0], find))
         find(Ride(legs.first().start, legs.last().end, legs.flatMap { it.via }))?.let { return listOf(it) } // a long stop split one ride
         return group(legs, MAX_GAP).flatMap { g ->
-            val trips = g.map { find(it) }
+            val trips = g.map { findOrSplit(it, find) }
             if (g.size > 1 && trips.all { it != null }) listOf(trips.filterNotNull().reduce(::join)) else trips.filterNotNull()
         }
+    }
+
+    /**
+     * A change of trains under [TripDetector.END_AFTER] is one ride that matches no single train: cut it at its longest
+     * standstill and ask for a train per leg. The lookups only succeed where a train really stops, i.e. at a station.
+     */
+    private fun findOrSplit(ride: Ride, find: (Ride) -> Trip?): Trip? = find(ride) ?: ride.pause?.let { (from, to) ->
+        val a = find(Ride(ride.start, from, ride.via.filter { it.time < from.time })) ?: return null
+        val b = find(Ride(to, ride.end, ride.via.filter { it.time > to.time })) ?: return null
+        join(a, b)
     }
 
     private fun join(a: Trip, b: Trip) = Trip("${a.train} + ${b.train}", a.from, b.to, b.scheduledArrival, b.arrival,

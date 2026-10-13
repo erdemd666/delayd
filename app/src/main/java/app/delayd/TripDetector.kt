@@ -10,8 +10,10 @@ data class Fix(val time: Instant, val lat: Double, val lon: Double)
  * A fast movement between two standstills, e.g. a train ride from station to station.
  * [via] are up to three fixes on the way (at a quarter, half and three quarters of the time): they tell a train
  * from a bus or car that happens to start and end at the same stations at the same time.
+ * [pause] is the longest standstill on the way (first and last slow fix): where a change of trains shorter than
+ * [TripDetector.END_AFTER] hides, so Journeys can try the ride as two legs.
  */
-data class Ride(val start: Fix, val end: Fix, val via: List<Fix> = emptyList())
+data class Ride(val start: Fix, val end: Fix, val via: List<Fix> = emptyList(), val pause: Pair<Fix, Fix>? = null)
 
 /**
  * Turns a stream of location fixes into rides.
@@ -29,6 +31,8 @@ class TripDetector(private val onRide: (Ride) -> Unit) {
     private var still: Fix? = null
     @Volatile private var start: Fix? = null
     private var slowSince: Fix? = null
+    private var slowLast: Fix? = null
+    private var pause: Pair<Fix, Fix>? = null
     private var carry: Piece? = null
     private val trail = ArrayList<Fix>()
 
@@ -56,13 +60,14 @@ class TripDetector(private val onRide: (Ride) -> Unit) {
         if (s == null) {
             // fixes after a long silence (idle without polling) say nothing about speed in between
             if (Duration.between(prev.time, fix.time) > MAX_SILENCE) { still = fix; return }
-            if (fast) { start = still ?: prev; trail.clear() } else still = fix
+            if (fast) { start = still ?: prev; trail.clear(); pause = null } else still = fix
             return
         }
         if (trail.lastOrNull()?.let { Duration.between(it.time, fix.time) >= TRAIL_EVERY } != false) trail += fix
         // after a standstill the phone must really have left it: a GPS spike near a station is not the train departing
-        if (fast && slowSince?.let { distanceM(it, fix) < RESUME_M } != true) { slowSince = null; return }
+        if (fast && slowSince?.let { distanceM(it, fix) < RESUME_M } != true) { notePause(); slowSince = null; return }
         val slow = slowSince ?: fix.also { slowSince = it }
+        slowLast = fix
         // a stop longer than END_AFTER splits the ride; Journeys joins the pieces later
         if (Duration.between(slow.time, fix.time) >= END_AFTER) {
             close(s, slow)
@@ -70,6 +75,13 @@ class TripDetector(private val onRide: (Ride) -> Unit) {
             slowSince = null
             still = fix
         }
+    }
+
+    private fun notePause() {
+        val a = slowSince ?: return
+        val b = slowLast ?: return
+        val len = Duration.between(a.time, b.time)
+        if (len >= MIN_PAUSE && len > (pause?.let { Duration.between(it.first.time, it.second.time) } ?: Duration.ZERO)) pause = a to b
     }
 
     /** Detection is being switched off: a ride in progress ends at the last fix and goes through the usual size and noise rules. */
@@ -87,7 +99,8 @@ class TripDetector(private val onRide: (Ride) -> Unit) {
         val own = distanceM(s, end)
         if (own < MIN_PIECE_M) return // noise, not a piece of a ride
         val send = if (before == null) own >= MIN_RIDE_M else before.sent || distanceM(before.ride.start, end) >= MIN_RIDE_M
-        val ride = Ride(s, end, checkpoints(s, end))
+        val ride = Ride(s, end, checkpoints(s, end), pause)
+        pause = null
         if (send) {
             if (before != null && !before.sent) onRide(before.ride)
             onRide(ride)
@@ -115,6 +128,8 @@ class TripDetector(private val onRide: (Ride) -> Unit) {
         const val MIN_PIECE_M = 1_000.0
         /** Fast again after a standstill only counts once the phone is this far from it. */
         const val RESUME_M = 150.0
+        /** A standstill shorter than this is no change of trains. */
+        val MIN_PAUSE: Duration = Duration.ofSeconds(60)
         val MAX_SILENCE: Duration = Duration.ofMinutes(10)
         /** Standstill that ends a ride. Short enough to split a change of trains, intermediate stops stand 0.5-3 min. */
         val END_AFTER: Duration = Duration.ofMinutes(4)

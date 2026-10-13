@@ -201,4 +201,14 @@ class RideQueueTest {
         assertEquals(Duration.ofSeconds(30), Pipeline.wait(T0, T0.plusSeconds(100)))
         assertEquals(Duration.ofMinutes(5), Pipeline.wait(T0.plusSeconds(300), T0))
     }
+
+    @Test
+    fun `the standstill of a ride survives a restart`() {
+        val r = Ride(fixAt(0), fixAt(60), listOf(fixAt(30)), fixAt(28) to fixAt(30))
+        queue().add(r)
+        queue().add(ride) // a ride without one
+        val loaded = mutableListOf<Ride>()
+        queue().drain(null, { loaded += it; null }) { }
+        assertTrue(loaded.contains(r))
+    }
 }

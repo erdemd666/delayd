@@ -128,18 +128,19 @@ class ScenarioTest {
     }
 
     // 7. connection with a 12 min and with a 6 min change at Potsdam; delay counted at the final destination
-    private fun transfer(name: String, changeMin: Int) {
+    // [lateInTransit]: the second train loses its minutes standing mid-route instead of leaving late, so the change stays as short as it says
+    private fun transfer(name: String, changeMin: Int, lateMin: Double = 8.0, lateInTransit: Boolean = false) {
         val leg1 = re1.take(2) // Brandenburg - Potsdam, arrives 08:35
         val dep2 = leg1.last().arrive + min(changeMin)
         val onTime = lineTimetable(dep2, 60, RE_V, RE_A, "Potsdam Hbf" to potsdam, "Berlin Hbf" to hbf)
-        val leg2 = onTime.delayedFrom(1, 8) // arrives 8 min late
+        val leg2 = onTime.delayedFrom(1, lateMin) // arrives late
         val planned2 = onTime.map { it.arrive }
         val platform2 = potsdam.offset(-60.0, 90.0)
         val truth = TruthBuilder(leg1[0].depart.minusSeconds(8 * 60 + 460), brandenburg.offset(0.0, -600.0)).apply {
             walk(brandenburg, 1.3)
             ride(leg1)
             walk(platform2, 1.3)
-            ride(listOf(leg2[0].copy(pt = platform2), leg2[1]))
+            ride(listOf(leg2[0].copy(pt = platform2), leg2[1]), if (lateInTransit) mapOf(0 to (0.5 to (lateMin * 60).toInt())) else emptyMap())
             walk(hbf.offset(250.0, 250.0))
             stand(40 * 60)
         }.build()
@@ -148,12 +149,16 @@ class ScenarioTest {
         assertEquals("trips ${run.trips}", 1, run.trips.size)
         val trip = run.trips.single().second
         assertEquals("RE1 + RE7", trip.train)
-        assertEquals(8, trip.delayMin)
+        assertEquals(lateMin.toLong(), trip.delayMin)
         assertEquals(2, trip.legs)
     }
     @Test fun transfer12Min() = transfer("Transfer, 12 min change", 12)
     @Test fun transfer9Min() = transfer("Transfer, 9 min change", 9)
     @Test fun transfer5Min() = transfer("Transfer, 5 min change", 5)
+    @Test fun transfer2Min() { // under 3 min the detector sees one ride; Journeys splits it at the standstill
+        transfer("Transfer, 2 min change", 2, lateMin = 1.5, lateInTransit = true)
+        assertEquals(1, Report.rows.first { it.name == "Transfer, 2 min change" }.rides)
+    }
 
     // 8. cancelled train and its replacement 30 min / 60 min later (an hourly line)
     private fun replacement(name: String, laterMin: Int) {
