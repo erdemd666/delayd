@@ -51,9 +51,30 @@ class RideQueueTest {
     }
 
     @Test
-    fun `a ride without a train is dropped quietly`() {
+    fun `a ride without a train waits as an orphan, then is dropped without another lookup`() {
         val q = queue().apply { add(ride) }
         assertEquals(emptyList<Trip>(), q.run(find = { null }).first)
+        assertEquals(1, q.size)
+        var calls = 0
+        now = ride.end.time.plus(Journeys.LONG_GAP).plusSeconds(1)
+        q.run(find = { calls++; null })
+        assertEquals(0, calls)
+        assertEquals(0, q.size)
+    }
+
+    @Test
+    fun `an orphan is completed by the second half of a ride split by a long stop`() {
+        val first = rideAt(0, 20, 13.4, 13.6)
+        val second = rideAt(110, 130, 13.6, 13.8) // stood in the open for 90 min
+        val q = queue().apply { add(first) }
+        now = T0.plus(Duration.ofMinutes(60))
+        q.run(find = { null }) // the first half alone has no train
+        q.add(second)
+        now = T0.plus(Duration.ofMinutes(170))
+        var asked: Ride? = null
+        val (trips, _) = q.run(find = { asked = asked ?: it; trip })
+        assertEquals(listOf(trip), trips)
+        assertEquals(Ride(first.start, second.end), asked) // the whole ride is tried first
         assertEquals(0, q.size)
     }
 

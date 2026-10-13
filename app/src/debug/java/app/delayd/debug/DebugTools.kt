@@ -7,6 +7,8 @@ import app.delayd.Pipeline
 import app.delayd.Ride
 import app.delayd.Stop
 import app.delayd.Transitous
+import app.delayd.TripStore
+import android.util.Log
 import app.delayd.TripDetector
 import java.time.Duration
 import java.time.Instant
@@ -39,5 +41,27 @@ object DebugTools {
         val train = Departure("ICE 999 (simulated)", "Berlin Hbf", ride.start.time.plusSeconds(60), realtime = true, next = listOf(
             Stop("Potsdam Hbf", TO_LAT, TO_LON, ride.end.time.minus(Duration.ofMinutes(delayMin.toLong())), ride.end.time)))
         Pipeline.process(context, null) { Transitous.match(it, listOf(train)) }
+    }
+
+    /**
+     * Replays a train that really ran in the last 2 h from [station] (live data, 3 requests: geocode, departures, the
+     * pipeline's own lookup) through the real detector, queue, Transitous lookup, trip store and notifications.
+     * Progress goes to logcat under "DelaydReplay".
+     */
+    fun replayReal(context: Context, station: String) {
+        fun say(m: String) = Log.i("DelaydReplay", m)
+        val queue = Pipeline.queue(context)
+        val place = Transitous.searchStations(station).firstOrNull { it.lat != 0.0 } ?: run { say("no station for '$station'"); return }
+        val now = Instant.now()
+        val deps = Transitous.departuresAt(place.id, now.minus(Duration.ofHours(2)).truncatedTo(java.time.temporal.ChronoUnit.SECONDS), n = 80)
+        val pick = Replay.pick(deps, place.lat to place.lon, now) ?: run { say("no suitable train in ${place.name}: ${deps.size} departures"); return }
+        say("replaying ${pick.dep.train} ${place.name} ${pick.dep.time} -> ${pick.dest.name} arr ${pick.dest.arrival} (planned ${pick.dest.scheduledArrival})")
+        var rides = 0
+        val detector = TripDetector { rides++; queue.add(it) }
+        Replay.fixes(pick).forEach(detector::add)
+        val before = TripStore.trips.value.size
+        Pipeline.process(context, null) // the live lookup
+        val stored = TripStore.trips.value.take(TripStore.trips.value.size - before)
+        say("rides=$rides stored=${stored.map { "${it.train} -> ${it.to} delay ${it.delayMin} min realtime=${it.realtime}" }}")
     }
 }

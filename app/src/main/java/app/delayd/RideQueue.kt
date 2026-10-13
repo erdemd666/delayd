@@ -12,6 +12,8 @@ import java.time.Instant
 /**
  * Rides waiting for a train lookup, kept in a JSON file so none is lost when the process dies or the network is gone.
  * A ride waits [SETTLE] after it ended (a connecting ride may follow), failures back off up to an hour.
+ * A ride without a train stays as an "orphan" for [Journeys.LONG_GAP]: it may be the first half of a ride
+ * split by a long stop in the open, and the second half completes it. Expired orphans leave without a lookup.
  */
 class RideQueue(private val file: File, private val clock: () -> Instant = Instant::now) {
     data class Item(val ride: Ride, val attempts: Int, val notBefore: Instant)
@@ -36,13 +38,19 @@ class RideQueue(private val file: File, private val clock: () -> Instant = Insta
         val byRide = waiting.associateBy { it.ride }
         for (chain in Journeys.chains(waiting.map { it.ride })) {
             val chainItems = chain.map { byRide.getValue(it) }
-            val due = chainItems.maxOf { it.notBefore }
+            val live = chainItems.filterNot(::orphan)
+            if (live.isEmpty()) { // only orphans: nothing to look up, they go when their time is up
+                if (chainItems.all { it.notBefore <= now }) remove(chainItems)
+                continue
+            }
+            val due = live.maxOf { it.notBefore }
             if (due > now) continue
             if (inProgress != null && Journeys.connects(chain.last().end, inProgress)) continue
             val ageOut = chain.last().end.time.plus(MAX_AGE) < now
             try {
-                Journeys.resolve(chain, find).forEach(out)
-                remove(chainItems)
+                val trips = Journeys.resolve(chain, find)
+                trips.forEach(out)
+                if (trips.isEmpty() && !ageOut) keepAsOrphans(live) else remove(chainItems)
             } catch (e: IOException) {
                 fail(chainItems, 1, (e as? LookupException)?.retryAfterSec, ageOut)
                 break // network or server trouble: don't try the next journey, don't hammer
@@ -54,6 +62,12 @@ class RideQueue(private val file: File, private val clock: () -> Instant = Insta
         }
         return synchronized(this) { items.filter { it.notBefore > now || it.attempts > 0 }.minOfOrNull { it.notBefore } }
     }
+
+    private fun orphan(i: Item) = i.attempts == ORPHAN
+
+    @Synchronized
+    private fun keepAsOrphans(orphans: List<Item>) =
+        save(items.map { if (it in orphans) Item(it.ride, ORPHAN, it.ride.end.time.plus(Journeys.LONG_GAP)) else it })
 
     /** Drops every waiting ride; they hold coordinates, so "delete all data" must reach them. */
     @Synchronized
@@ -77,7 +91,7 @@ class RideQueue(private val file: File, private val clock: () -> Instant = Insta
         items = all
         val tmp = File(file.parentFile, file.name + ".tmp")
         tmp.writeText(JSONArray(all.map {
-            JSONObject().put("start", fixJson(it.ride.start)).put("end", fixJson(it.ride.end))
+            JSONObject().put("start", fixJson(it.ride.start)).put("end", fixJson(it.ride.end)).put("via", JSONArray(it.ride.via.map(::fixJson)))
                 .put("attempts", it.attempts).put("notBefore", it.notBefore.toString())
         }).toString())
         if (!tmp.renameTo(file)) file.writeText(tmp.readText())
@@ -88,7 +102,8 @@ class RideQueue(private val file: File, private val clock: () -> Instant = Insta
             (0 until a.length()).mapNotNull {
                 try {
                     val o = a.getJSONObject(it)
-                    Item(Ride(fix(o.getJSONObject("start")), fix(o.getJSONObject("end"))), o.optInt("attempts"),
+                    val via = o.optJSONArray("via")?.let { v -> (0 until v.length()).map { i -> fix(v.getJSONObject(i)) } }.orEmpty()
+                    Item(Ride(fix(o.getJSONObject("start")), fix(o.getJSONObject("end")), via), o.optInt("attempts"),
                         Instant.parse(o.getString("notBefore")))
                 } catch (e: JSONException) { null } catch (e: DateTimeException) { null }
             }
@@ -102,6 +117,7 @@ class RideQueue(private val file: File, private val clock: () -> Instant = Insta
         val SETTLE: Duration = Journeys.MAX_GAP // a connecting ride starts within this long after the previous one ended
         val MAX_AGE: Duration = Duration.ofHours(48)
         const val MAX_ATTEMPTS = 10
+        const val ORPHAN = -1 // attempts value of a ride that found no train and waits for its other half
         const val BAD_DATA_WEIGHT = 4 // three unreadable responses and the ride is dropped
 
         /** 1 min, 2 min, 4 min ... capped at 1 h; a server's Retry-After wins when longer. */
