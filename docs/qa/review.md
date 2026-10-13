@@ -15,6 +15,9 @@ Scope: every Kotlin source in `app/src` (main, debug, test), manifests, resource
 | 7 | Low | `BootReceiver.kt:10` (a2b13af) | Receiver acted on any intent action. | Check for BOOT_COMPLETED / MY_PACKAGE_REPLACED. |
 | 8 | Low | `ui/TripDetail.kt` (4bceb82) | A claimed/paid Deutschlandticket trip showed "October: 0 open cases, 0,00 so far". | Month line only for OPEN trips. |
 | 9 | Low | `core_strings` / plurals (a2b13af) | "1 cases" in month texts. | Plurals en + de. |
+| 10 | Medium | `Notifier.open`, `MainActivity` (workstream I) | A notification tap used `CLEAR_TOP` without `SINGLE_TOP`: the running activity was recreated and in-app navigation reset. | `launchMode="singleTop"` plus `FLAG_ACTIVITY_SINGLE_TOP` instead of `CLEAR_TOP`; `onNewIntent` pushes Trip (or Trip > Claim) onto the current back stack. The tile's `ACTION_START_DETECTION` is handled in `onNewIntent` too. Checked on the emulator for the delay tap, "Claim now" and the tile; the monthly-claim notification carries no trip, so it just brings the app forward. |
+| 11 | Low | `Compensation.dTicketMonthCt`, `ui/Format.totals` (workstream I) | The 25 % Deutschlandticket cap was applied per status group, so open + claimed + paid could exceed 15,75 EUR a month. | The cap is shared per month (paid first, then claimed, then open); `dTicketTakenCt` feeds Home, month claim, trip detail, claim text and the monthly notification. JVM tests in `CompensationTest`, `MonthlyClaimTest`, `FormatTest`. |
+| 12 | Low | `ui/Components.kt Screen`, `ui/Claim.kt Fact` (workstream I) | At 200 % font scale the fixed-height app bar clipped long titles and "Planmäßige Ankunft" broke mid-word in the claim facts. | Own wrapping app bar; facts stack label above value above 1.3x. Also: fare field error state, announcement of "Kopiert", language names tagged with their language for TalkBack. |
 
 ## Not defects / checked and fine
 
@@ -26,9 +29,7 @@ Scope: every Kotlin source in `app/src` (main, debug, test), manifests, resource
 
 ## Found, not fixed (accepted)
 
-- `Notifier.open` uses `CLEAR_TOP` without `SINGLE_TOP`, so tapping a notification recreates MainActivity and resets in-app navigation. Works (deep link is read in `onCreate`); a one-flag change is possible but changes navigation behaviour, so left.
 - A ride in progress is lost if the user switches detection off mid-ride (detector state is in memory). Rare, documented limit.
-- The 25 % Deutschlandticket cap is applied per status group (open / claimed / paid), not across them, in the totals. Only matters beyond 10 cases a month.
 - Delay notifications arrive about 30 minutes after arrival (`SETTLE`, to allow a connecting ride). Design decision from workstream A.
 - Export is a text share of the JSON (binder size limit is about 1 MB, roughly 4000 trips).
 - Notifications are not re-sent if `POST_NOTIFICATIONS` is denied when a trip is found; the trip still appears in the app.

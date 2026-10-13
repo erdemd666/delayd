@@ -41,6 +41,7 @@ First public release.
 - A bug in one queued ride can no longer block the rides behind it.
 - Home offers last month's Deutschlandticket claim while it is still payable.
 - The boot receiver ignores other broadcasts; "1 cases" plural fixed in both languages.
+- Tapping a notification while the app is open keeps your place (the trip opens on top of the current screen); the Deutschlandticket monthly cap now counts open, claimed and paid cases together; long titles and claim facts no longer clip at 200 % font scale; screenshots refreshed.
 
 ### Known limits
 - Germany only; claims are prepared, not filed (DB's form needs a login).
