@@ -11,7 +11,7 @@ Goal: prove detection and matching hold up under phone-like input, fix what brea
    to `app/build/sim/results.md` (copied to `docs/simulation/results.md`).
 3. **Tune**: measure first (before column), fix root causes in detector/journeys/matching, re-run (after column).
 4. **Live replay**: debug-only `REPLAY_REAL` broadcast in `DebugTools` + a JVM task `replayLive` (excluded from `test`).
-   A handful of Transitous requests, User-Agent `Delayd/1.0.0 (github.com/erdem61/delayd)`, no loops.
+   A handful of Transitous requests, User-Agent `Delayd/1.0.0 (+https://erdem6.com; hi@erdem6.com)`, no loops.
 5. **GPX**: 2-3 tracks exported from the generator into `docs/simulation/gpx/`, README on how to replay them.
 
 ## Boards

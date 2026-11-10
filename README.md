@@ -1,6 +1,6 @@
 # Delayd
 
-[![CI](https://github.com/erdem61/delayd/actions/workflows/ci.yml/badge.svg)](https://github.com/erdem61/delayd/actions/workflows/ci.yml)
+[![CI](https://github.com/erdemd666/delayd/actions/workflows/ci.yml/badge.svg)](https://github.com/erdemd666/delayd/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 ![Android 8.0+](https://img.shields.io/badge/Android-8.0%2B-3DDC84)
 

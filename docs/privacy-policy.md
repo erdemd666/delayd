@@ -38,7 +38,7 @@ The app talks only to `https://api.transitous.org` ([Transitous](https://transit
 
 The end station you pick, the arrival time you type and your ticket are kept on the device and not sent.
 
-Your end point (for detected rides), your route, your name, your ticket and your location history are **not** sent. As with every internet request, Transitous receives your IP address and the app's user agent (`Delayd/<version> (github.com/erdem61/delayd)`). Delayd has no control over how Transitous handles its server logs; see <https://transitous.org>. Delayd talks to no other server.
+Your end point (for detected rides), your route, your name, your ticket and your location history are **not** sent. As with every internet request, Transitous receives your IP address and the app's user agent (`Delayd/<version> (+https://erdem6.com; hi@erdem6.com)`). Delayd has no control over how Transitous handles its server logs; see <https://transitous.org>. Delayd talks to no other server.
 
 ### What we do not do
 
@@ -108,7 +108,7 @@ Die App spricht ausschließlich mit `https://api.transitous.org` ([Transitous](h
 
 Der gewählte Zielbahnhof, die eingegebene Ankunftszeit und Ihr Ticket bleiben auf dem Gerät und werden nicht gesendet.
 
-Ihr Zielort (bei erkannten Fahrten), Ihre Route, Ihr Name, Ihr Ticket und Ihr Standortverlauf werden **nicht** übertragen. Wie bei jeder Internetanfrage erhält Transitous Ihre IP-Adresse und den User-Agent der App (`Delayd/<Version> (github.com/erdem61/delayd)`). Auf die Server-Protokolle von Transitous hat Delayd keinen Einfluss, siehe <https://transitous.org>. Delayd nutzt keinen anderen Server.
+Ihr Zielort (bei erkannten Fahrten), Ihre Route, Ihr Name, Ihr Ticket und Ihr Standortverlauf werden **nicht** übertragen. Wie bei jeder Internetanfrage erhält Transitous Ihre IP-Adresse und den User-Agent der App (`Delayd/<Version> (+https://erdem6.com; hi@erdem6.com)`). Auf die Server-Protokolle von Transitous hat Delayd keinen Einfluss, siehe <https://transitous.org>. Delayd nutzt keinen anderen Server.
 
 ### Was wir nicht tun
 

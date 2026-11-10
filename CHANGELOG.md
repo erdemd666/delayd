@@ -50,5 +50,5 @@ First public release.
 - Ticket QR scan, other countries and per-trip "separate ticket" for connections are not built; see the roadmap in the README.
 - The privacy policy still needs the owner's legal name and postal address before publishing (contact is hi@erdem6.com).
 
-[Unreleased]: https://github.com/erdem61/delayd/compare/v1.0.0...HEAD
-[1.0.0]: https://github.com/erdem61/delayd/releases/tag/v1.0.0
+[Unreleased]: https://github.com/erdemd666/delayd/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/erdemd666/delayd/releases/tag/v1.0.0
